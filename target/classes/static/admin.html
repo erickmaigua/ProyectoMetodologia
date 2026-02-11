@@ -449,6 +449,71 @@
         </section>
     </main>
 
+    <!-- MODAL PARA INICIAR TRACKING -->
+    <div class="modal" id="modalIniciarTracking" style="display:none;">
+        <div class="modal-content" style="max-width:600px;">
+            <div class="modal-header">
+                <h2>
+                    <i data-lucide="map-pin"></i>
+                    Iniciar Tracking de Entrega
+                </h2>
+                <button class="close-modal" onclick="cerrarModalTracking()">
+                    <i data-lucide="x" style="width: 28px; height: 28px;"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p style="margin-bottom:15px; color:#6b7280;">
+                    Configure las coordenadas de origen y destino para iniciar el tracking en tiempo real.
+                </p>
+
+                <form id="formIniciarTracking" onsubmit="submitIniciarTracking(event)">
+                    <input type="hidden" id="trackingPedidoId">
+
+                    <h3 style="margin-bottom:10px;">📍 Origen (Bodega)</h3>
+                    <div class="form-grid" style="grid-template-columns:1fr 1fr; margin-bottom:15px;">
+                        <div class="form-group">
+                            <label>Latitud</label>
+                            <input type="number" id="trackLatOrigen" step="any" value="-0.1807" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Longitud</label>
+                            <input type="number" id="trackLonOrigen" step="any" value="-78.4678" required>
+                        </div>
+                    </div>
+
+                    <h3 style="margin-bottom:10px;">🏠 Destino (Cliente)</h3>
+                    <div class="form-grid" style="grid-template-columns:1fr 1fr; margin-bottom:15px;">
+                        <div class="form-group">
+                            <label>Latitud</label>
+                            <input type="number" id="trackLatDestino" step="any" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Longitud</label>
+                            <input type="number" id="trackLonDestino" step="any" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>📮 Dirección de Entrega</label>
+                        <input type="text" id="trackDireccion" placeholder="Av. Principal 123, Quito" required>
+                    </div>
+
+                    <div style="background:#fef3c7; padding:12px; border-radius:8px; margin-bottom:15px;">
+                        <p style="font-size:0.9em; color:#92400e;">
+                            💡 <strong>Tip:</strong> Para pruebas en Quito, puedes usar coordenadas aleatorias cercanas:
+                            Lat: -0.18 a -0.22, Lng: -78.46 a -78.52
+                        </p>
+                    </div>
+
+                    <button type="submit" class="btn btn-success" style="width:100%;">
+                        <i data-lucide="play"></i>
+                        Iniciar Tracking y Cambiar a EN CAMINO
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <script>
         const API_URL = 'http://localhost:8080/api';
         let productoEditando = null;
@@ -591,7 +656,7 @@
                         </button>
                     ` : '<span style="color: #999;">Solo lectura</span>';
 
-                   tbody.innerHTML += `
+                    tbody.innerHTML += `
                         <tr id="prod-row-${prod.id}">
                             <td>
                                 ${prod.imagen ? `<img src="${prod.imagen}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px; margin-right: 8px; vertical-align: middle;">` : ''}
@@ -865,46 +930,47 @@
             }
         }
 
-		// PEDIDOS
-		async function cargarPedidos() {
-		    try {
-		        const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
-		        let url = `${API_URL}/pedidos/mis-pedidos/${currentUser.id}`;
+        // PEDIDOS
+        async function cargarPedidos() {
+            try {
+                const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+                let url = `${API_URL}/pedidos/mis-pedidos/${currentUser.id}`;
 
-		        // Si es DESPACHO, solo mostrar pedidos procesados
-		        if (currentUserRole === 'DESPACHO') {
-		            url = `${API_URL}/pedidos/procesados`;
-		        }
+                // Si es DESPACHO, solo mostrar pedidos procesados
+                if (currentUserRole === 'DESPACHO') {
+                    url = `${API_URL}/pedidos/procesados`;
+                }
 
-		        const response = await fetch(url);
-		        const pedidos = await response.json();
+                const response = await fetch(url);
+                const pedidos = await response.json();
 
-		        const tbody = document.querySelector('#tablaPedidos tbody');
-		        tbody.innerHTML = '';
+                const tbody = document.querySelector('#tablaPedidos tbody');
+                tbody.innerHTML = '';
 
-		        if (pedidos.length === 0) {
-		            let mensaje = 'No hay pedidos registrados';
-		            if (currentUserRole === 'EMPLEADO') mensaje = 'No hay pedidos de tus clientes asignados';
-		            if (currentUserRole === 'DESPACHO') mensaje = 'No hay pedidos procesados para despachar';
+                if (pedidos.length === 0) {
+                    let mensaje = 'No hay pedidos registrados';
+                    if (currentUserRole === 'EMPLEADO') mensaje = 'No hay pedidos de tus clientes asignados';
+                    if (currentUserRole === 'DESPACHO') mensaje = 'No hay pedidos procesados para despachar';
 
-		            tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; padding: 30px; color: #999;">${mensaje}</td></tr>`;
-		            return;
-		        }
+                    tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; padding: 30px; color: #999;">${mensaje}</td></tr>`;
+                    return;
+                }
 
-		        pedidos.forEach(ped => {
-		            const estadoBadge = {
-		                'PENDIENTE': 'badge-warning',
-		                'PROCESANDO': 'badge-info',
-		                'ENTREGADO': 'badge-success'
-		            }[ped.estado] || 'badge-info';
+                pedidos.forEach(ped => {
+                    const estadoBadge = {
+                        'PENDIENTE': 'badge-warning',
+                        'PROCESANDO': 'badge-info',
+                        'EN_CAMINO': 'badge-warning',
+                        'ENTREGADO': 'badge-success'
+                    }[ped.estado] || 'badge-info';
 
-		            const empleadoInfo = currentUserRole === 'ADMINISTRADOR' && ped.empleadoAsignadoNombre ?
-		                `<br><small style="color: #666;">Asignado a: ${ped.empleadoAsignadoNombre}</small>` : '';
+                    const empleadoInfo = currentUserRole === 'ADMINISTRADOR' && ped.empleadoAsignadoNombre ?
+                        `<br><small style="color: #666;">Asignado a: ${ped.empleadoAsignadoNombre}</small>` : '';
 
-		            // Botones según rol
-		            let botonesAccion = '';
-		            if (currentUserRole === 'EMPLEADO' && ped.estado === 'PENDIENTE') {
-		                botonesAccion = `
+                    // Botones según rol
+                    let botonesAccion = '';
+                    if (currentUserRole === 'EMPLEADO' && ped.estado === 'PENDIENTE') {
+                        botonesAccion = `
 		                    <button class="btn btn-info btn-sm" onclick="verDetallePedido('${ped.id}')" style="margin-right: 5px;">
 		                        <i data-lucide="eye"></i>
 		                    </button>
@@ -912,56 +978,71 @@
 		                        <i data-lucide="check"></i> Procesar
 		                    </button>
 		                `;
-		            } else if (currentUserRole === 'DESPACHO' && ped.estado === 'PROCESANDO') {
-		                botonesAccion = `
-		                    <button class="btn btn-info btn-sm" onclick="verDetallePedido('${ped.id}')" style="margin-right: 5px;">
-		                        <i data-lucide="eye"></i>
-		                    </button>
-		                    <button class="btn btn-success btn-sm" onclick="marcarEntregado('${ped.id}')">
-		                        <i data-lucide="truck"></i> Entregar
-		                    </button>
-		                `;
-		            } else if (currentUserRole === 'ADMINISTRADOR') {
-		                // Administrador puede ver y cambiar cualquier estado
-		                let botonesEstado = '';
-		                if (ped.estado === 'PENDIENTE') {
-		                    botonesEstado = `
+                    } else if (currentUserRole === 'DESPACHO' && ped.estado === 'PROCESANDO') {
+                        botonesAccion = `
+                            <button class="btn btn-info btn-sm" onclick="verDetallePedido('${ped.id}')" style="margin-right: 5px;">
+                                <i data-lucide="eye"></i>
+                            </button>
+                            <button class="btn btn-success btn-sm" onclick="abrirModalIniciarTracking('${ped.id}')" style="margin-right: 5px;">
+                                <i data-lucide="truck"></i> Iniciar Entrega
+                            </button>
+                        `;
+                    } else if (ped.estado === 'EN_CAMINO') {
+                        botonesAccion = `
+                            <button class="btn btn-info btn-sm" onclick="verDetallePedido('${ped.id}')" style="margin-right: 5px;">
+                                <i data-lucide="eye"></i>
+                            </button>
+                            <button class="btn btn-success btn-sm" onclick="marcarEntregado('${ped.id}')">
+                                <i data-lucide="check"></i> Entregar
+                            </button>
+                        `;
+                    } else if (currentUserRole === 'ADMINISTRADOR') {
+                        // Administrador puede ver y cambiar cualquier estado
+                        let botonesEstado = '';
+                        if (ped.estado === 'PENDIENTE') {
+                            botonesEstado = `
 		                        <button class="btn btn-success btn-sm" onclick="marcarProcesado('${ped.id}')" style="margin-left: 5px;">
 		                            <i data-lucide="check"></i> Procesar
 		                        </button>
 		                    `;
-		                } else if (ped.estado === 'PROCESANDO') {
-		                    botonesEstado = `
-		                        <button class="btn btn-success btn-sm" onclick="marcarEntregado('${ped.id}')" style="margin-left: 5px;">
-		                            <i data-lucide="truck"></i> Entregar
-		                        </button>
-		                    `;
-		                }
+                        } else if (ped.estado === 'PROCESANDO') {
+                            botonesEstado = `
+                                <button class="btn btn-success btn-sm" onclick="abrirModalIniciarTracking('${ped.id}')" style="margin-left: 5px;">
+                                    <i data-lucide="truck"></i> Iniciar Entrega
+                                </button>
+                            `;
+                        } else if (ped.estado === 'EN_CAMINO') {
+                            botonesEstado = `
+                                <button class="btn btn-success btn-sm" onclick="marcarEntregado('${ped.id}')" style="margin-left: 5px;">
+                                    <i data-lucide="check"></i> Entregar
+                                </button>
+                            `;
+                        }
 
-		                botonesAccion = `
+                        botonesAccion = `
 		                    <button class="btn btn-info btn-sm" onclick="verDetallePedido('${ped.id}')">
 		                        <i data-lucide="eye"></i>
 		                    </button>
 		                    ${botonesEstado}
 		                `;
-		            } else {
-		                botonesAccion = `
+                    } else {
+                        botonesAccion = `
 		                    <button class="btn btn-info btn-sm" onclick="verDetallePedido('${ped.id}')">
 		                        <i data-lucide="eye"></i>
 		                    </button>
 		                `;
-		            }
+                    }
 
-		            // ➕ Botón de FACTURA solo si el pedido está ENTREGADO (para cualquier rol interno)
-		            if (ped.estado === 'ENTREGADO') {
-		                botonesAccion += `
+                    // ➕ Botón de FACTURA solo si el pedido está ENTREGADO (para cualquier rol interno)
+                    if (ped.estado === 'ENTREGADO') {
+                        botonesAccion += `
 		                    <button class="btn btn-warning btn-sm" onclick="descargarFactura('${ped.id}')" style="margin-left: 5px;">
 		                        <i data-lucide="file-text"></i> Factura
 		                    </button>
 		                `;
-		            }
+                    }
 
-		            tbody.innerHTML += `
+                    tbody.innerHTML += `
 		                <tr>
 		                    <td><strong>${ped.numeroPedido}</strong></td>
 		                    <td>${ped.clienteNombre}${empleadoInfo}</td>
@@ -972,13 +1053,13 @@
 		                    <td>${botonesAccion}</td>
 		                </tr>
 		            `;
-		        });
+                });
 
-		        lucide.createIcons();
-		    } catch (error) {
-		        showAlert('Error al cargar pedidos', 'error');
-		    }
-		}
+                lucide.createIcons();
+            } catch (error) {
+                showAlert('Error al cargar pedidos', 'error');
+            }
+        }
 
 
         // Ver detalle del pedido
@@ -1134,32 +1215,90 @@
                 showAlert('Error al actualizar estado', 'error');
             }
         }
-		async function descargarFactura(pedidoId) {
-		    try {
-		        const response = await fetch(`${API_URL}/facturas/pedido/${pedidoId}`);
+        async function descargarFactura(pedidoId) {
+            try {
+                const response = await fetch(`${API_URL}/facturas/pedido/${pedidoId}`);
 
-		        if (!response.ok) {
-		            showAlert('Error al generar la factura', 'error');
-		            return;
-		        }
+                if (!response.ok) {
+                    showAlert('Error al generar la factura', 'error');
+                    return;
+                }
 
-		        const blob = await response.blob();
-		        const url = window.URL.createObjectURL(blob);
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
 
-		        const a = document.createElement('a');
-		        a.href = url;
-		        a.download = `factura-pedido-${pedidoId}.pdf`;
-		        document.body.appendChild(a);
-		        a.click();
-		        a.remove();
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `factura-pedido-${pedidoId}.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
 
-		        window.URL.revokeObjectURL(url);
-		        showAlert('Factura descargada correctamente', 'success');
-		    } catch (error) {
-		        console.error(error);
-		        showAlert('Error al descargar la factura', 'error');
-		    }
-		}
+                window.URL.revokeObjectURL(url);
+                showAlert('Factura descargada correctamente', 'success');
+            } catch (error) {
+                console.error(error);
+                showAlert('Error al descargar la factura', 'error');
+            }
+        }
+
+        // ===== TRACKING: MODAL Y FUNCIONES =====
+        function abrirModalIniciarTracking(pedidoId) {
+            document.getElementById('trackingPedidoId').value = pedidoId;
+
+            // Coordenadas aleatorias de ejemplo para Quito
+            const latDest = -0.2000 + (Math.random() - 0.5) * 0.04;
+            const lonDest = -78.5000 + (Math.random() - 0.5) * 0.04;
+
+            document.getElementById('trackLatDestino').value = latDest.toFixed(6);
+            document.getElementById('trackLonDestino').value = lonDest.toFixed(6);
+
+            const modal = document.getElementById('modalIniciarTracking');
+            modal.style.display = 'flex';
+            modal.classList.add('active');
+
+            lucide.createIcons();
+        }
+
+        function cerrarModalTracking() {
+            const modal = document.getElementById('modalIniciarTracking');
+            modal.classList.remove('active');
+            modal.style.display = 'none';
+        }
+
+        async function submitIniciarTracking(e) {
+            e.preventDefault();
+
+            const pedidoId = document.getElementById('trackingPedidoId').value;
+            const data = {
+                latitudOrigen: parseFloat(document.getElementById('trackLatOrigen').value),
+                longitudOrigen: parseFloat(document.getElementById('trackLonOrigen').value),
+                latitudDestino: parseFloat(document.getElementById('trackLatDestino').value),
+                longitudDestino: parseFloat(document.getElementById('trackLonDestino').value),
+                direccionEntrega: document.getElementById('trackDireccion').value
+            };
+
+            try {
+                const response = await fetch(`${API_URL}/pedidos/${pedidoId}/iniciar-tracking`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showAlert(`Tracking iniciado. Distancia: ${result.distanciaKm} km, Tiempo estimado: ${result.tiempoEstimadoMin} min`, 'success');
+                    cerrarModalTracking();
+                    cargarPedidos();
+                } else {
+                    showAlert(result.mensaje || 'Error al iniciar tracking', 'error');
+                }
+            } catch (error) {
+                console.error(error);
+                showAlert('Error al iniciar tracking', 'error');
+            }
+        }
 
 
         // CLIENTES

@@ -198,12 +198,79 @@
     </div>
   </div>
 
+  <!-- TRACKING MODAL -->
+  <div class="modal" id="trackingModal" style="display:none;">
+    <div class="modal-content" style="max-width:900px;">
+      <div class="modal-header">
+        <h2>
+          <i data-lucide="map-pin"></i>
+          Tracking en Tiempo Real
+        </h2>
+        <button class="close-modal" type="button" onclick="cerrarTracking()">
+          <i data-lucide="x" style="width: 28px; height: 28px;"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <!-- Información del pedido -->
+        <div style="background:#f3f4f6; padding:15px; border-radius:10px; margin-bottom:15px;">
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+            <div><b>N° Pedido:</b> <span id="trackNumeroPedido">-</span></div>
+            <div><b>Estado:</b> <span id="trackEstado" class="badge">-</span></div>
+            <div><b>Ubicación:</b> <span id="trackUbicacion">-</span></div>
+            <div><b>Progreso:</b> <span id="trackProgreso">0</span>%</div>
+          </div>
+        </div>
+
+        <!-- Mapa de tracking (Canvas) -->
+        <div style="border:2px solid #e5e7eb; border-radius:12px; overflow:hidden; margin-bottom:15px;">
+          <canvas id="trackingMap" width="800" height="400" style="width:100%; height:auto; display:block;"></canvas>
+        </div>
+
+        <!-- Información de tiempo y distancia -->
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:15px; margin-bottom:15px;">
+          <div style="background:#dbeafe; padding:15px; border-radius:10px; text-align:center;">
+            <div style="font-size:0.9em; color:#1e40af; margin-bottom:5px;">⏱️ Tiempo Estimado</div>
+            <div style="font-size:1.5em; font-weight:700; color:#1e3a8a;" id="trackTiempo">-- min</div>
+          </div>
+          <div style="background:#d1fae5; padding:15px; border-radius:10px; text-align:center;">
+            <div style="font-size:0.9em; color:#065f46; margin-bottom:5px;">📍 Distancia Restante</div>
+            <div style="font-size:1.5em; font-weight:700; color:#064e3b;" id="trackDistancia">-- km</div>
+          </div>
+          <div style="background:#fef3c7; padding:15px; border-radius:10px; text-align:center;">
+            <div style="font-size:0.9em; color:#92400e; margin-bottom:5px;">🕐 Hora Estimada</div>
+            <div style="font-size:1.5em; font-weight:700; color:#78350f;" id="trackHora">--:--</div>
+          </div>
+        </div>
+
+        <!-- Historial de ubicaciones -->
+        <div>
+          <h3 style="margin-bottom:10px;">📋 Historial de Ubicaciones</h3>
+          <div id="trackHistorial" style="max-height:200px; overflow-y:auto; border:1px solid #e5e7eb; border-radius:8px; padding:10px;">
+            <p style="color:#6b7280; text-align:center;">No hay historial disponible</p>
+          </div>
+        </div>
+
+        <!-- Botones de control -->
+        <div style="display:flex; gap:10px; margin-top:15px; flex-wrap:wrap;">
+          <button class="checkout-btn" onclick="actualizarTrackingManual()" style="flex:1;">
+            <i data-lucide="refresh-cw"></i> Actualizar
+          </button>
+          <button class="checkout-btn" onclick="simularEntregaCliente()" style="flex:1; background:#f59e0b;">
+            <i data-lucide="play"></i> 🧪 Simular Entrega
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script>
-    const API_URL = 'http://localhost:8080/api'; // ajusta si tu puerto cambia
+    const API_URL = 'http://localhost:8080/api';
 
     let productos = [];
     let carrito = [];
     let currentUser = null;
+    let trackingInterval = null;
+    let pedidoTrackingActual = null;
 
     // ====== MODALES ======
     function toggleCart() {
@@ -230,6 +297,19 @@
         modal.classList.remove('active');
         modal.style.display = 'none';
       }
+    }
+
+    function cerrarTracking() {
+      const modal = document.getElementById('trackingModal');
+      modal.classList.remove('active');
+      modal.style.display = 'none';
+      
+      // Detener polling
+      if (trackingInterval) {
+        clearInterval(trackingInterval);
+        trackingInterval = null;
+      }
+      pedidoTrackingActual = null;
     }
 
     // ====== MÉTODO DE PAGO ======
@@ -505,7 +585,7 @@
       }
     }
 
-    // ====== MIS PEDIDOS (estado + detalle + factura) ======
+    // ====== MIS PEDIDOS ======
     async function abrirMisPedidos() {
       togglePedidos(true);
       await cargarMisPedidos();
@@ -525,50 +605,71 @@
           return;
         }
 
-        container.innerHTML = pedidos.map(p => `
-          <div style="border:1px solid #e5e7eb; border-radius:10px; padding:14px; margin-bottom:12px;">
-            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
-              <div>
-                <strong>${p.numeroPedido}</strong>
-                <div style="color:#6b7280;font-size:13px;">${p.fecha ? new Date(p.fecha).toLocaleString('es-ES') : '-'}</div>
+        container.innerHTML = pedidos.map(p => {
+          // Determinar badge de estado
+          let estadoBadge = 'badge-info';
+          if (p.estado === 'ENTREGADO') estadoBadge = 'badge-success';
+          else if (p.estado === 'EN_CAMINO') estadoBadge = 'badge-warning';
+          
+          // Botón de tracking solo si está EN_CAMINO
+          let botonTracking = '';
+          if (p.estado === 'EN_CAMINO') {
+            botonTracking = `
+              <button class="checkout-btn" style="padding:10px 14px; background:#6366f1;" onclick="verTrackingPedido('${p.id}')">
+                <i data-lucide="map-pin"></i> Ver Tracking
+              </button>
+            `;
+          }
+
+          return `
+            <div style="border:1px solid #e5e7eb; border-radius:10px; padding:14px; margin-bottom:12px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                <div>
+                  <strong>${p.numeroPedido}</strong>
+                  <div style="color:#6b7280;font-size:13px;">${p.fecha ? new Date(p.fecha).toLocaleString('es-ES') : '-'}</div>
+                </div>
+                <div>
+                  <span class="badge ${estadoBadge}">
+                    ${p.estado}
+                  </span>
+                </div>
               </div>
-              <div>
-                <span style="padding:6px 10px; border-radius:999px; background:#f3f4f6;">
-                  Estado: <b>${p.estado}</b>
-                </span>
+
+              <hr style="margin:12px 0;border:none;border-top:1px solid #eee;"/>
+
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                <div>
+                  <div><b>Pago:</b> ${p.metodoPago || '-'}</div>
+                  <div><b>Estado Pago:</b> ${p.estadoPago || '-'}</div>
+                  ${p.tarjetaUltimos4 ? `<div><b>Tarjeta:</b> **** ${p.tarjetaUltimos4}</div>` : ``}
+                </div>
+                <div>
+                  <div><b>Seguimiento:</b> ${p.codigoSeguimiento || '-'}</div>
+                  <div><b>Estado Despacho:</b> ${p.estadoDespacho || '-'}</div>
+                  <div><b>Ubicación:</b> ${p.ubicacionActual || '-'}</div>
+                </div>
+              </div>
+
+              <div style="margin-top:12px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                <div><b>Total:</b> $${Number((p.totalFinal ?? p.total ?? 0)).toFixed(2)}</div>
+
+                <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                  <button class="checkout-btn" style="padding:10px 14px;" onclick="verDetallePedidoCliente('${p.id}')">
+                    <i data-lucide="eye"></i> Ver detalle
+                  </button>
+
+                  ${botonTracking}
+
+                  <button class="checkout-btn" style="padding:10px 14px;" onclick="descargarFacturaCliente('${p.id}')">
+                    <i data-lucide="file-text"></i> Factura
+                  </button>
+                </div>
               </div>
             </div>
+          `;
+        }).join('');
 
-            <hr style="margin:12px 0;border:none;border-top:1px solid #eee;"/>
-
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-              <div>
-                <div><b>Pago:</b> ${p.metodoPago || '-'}</div>
-                <div><b>Estado Pago:</b> ${p.estadoPago || '-'}</div>
-                ${p.tarjetaUltimos4 ? `<div><b>Tarjeta:</b> **** ${p.tarjetaUltimos4}</div>` : ``}
-              </div>
-              <div>
-                <div><b>Seguimiento:</b> ${p.codigoSeguimiento || '-'}</div>
-                <div><b>Estado Despacho:</b> ${p.estadoDespacho || '-'}</div>
-                <div><b>Ubicación:</b> ${p.ubicacionActual || '-'}</div>
-              </div>
-            </div>
-
-            <div style="margin-top:12px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
-              <div><b>Total:</b> $${Number((p.totalFinal ?? p.total ?? 0)).toFixed(2)}</div>
-
-              <div style="display:flex; gap:8px; flex-wrap:wrap;">
-                <button class="checkout-btn" style="padding:10px 14px;" onclick="verDetallePedidoCliente('${p.id}')">
-                  <i data-lucide="eye"></i> Ver detalle
-                </button>
-
-                <button class="checkout-btn" style="padding:10px 14px;" onclick="descargarFacturaCliente('${p.id}')">
-                  <i data-lucide="file-text"></i> Factura
-                </button>
-              </div>
-            </div>
-          </div>
-        `).join('');
+        lucide.createIcons();
 
       } catch (err) {
         console.error(err);
@@ -681,6 +782,267 @@
       }
     }
 
+    // ====== TRACKING EN TIEMPO REAL ======
+
+    async function verTrackingPedido(pedidoId) {
+      try {
+        pedidoTrackingActual = pedidoId;
+        
+        // Abrir modal
+        const modal = document.getElementById('trackingModal');
+        modal.style.display = 'flex';
+        modal.classList.add('active');
+
+        // Cargar datos iniciales
+        await actualizarTrackingManual();
+
+        // Iniciar polling cada 5 segundos
+        if (trackingInterval) clearInterval(trackingInterval);
+        trackingInterval = setInterval(actualizarTrackingManual, 5000);
+
+        lucide.createIcons();
+
+      } catch (e) {
+        console.error(e);
+        showAlert('Error al abrir tracking', 'error');
+      }
+    }
+
+    async function actualizarTrackingManual() {
+      if (!pedidoTrackingActual) return;
+
+      try {
+        const res = await fetch(`${API_URL}/pedidos/${pedidoTrackingActual}/tracking-actual`);
+        const data = await res.json();
+
+        if (!data.success) {
+          showAlert('Error al obtener tracking', 'error');
+          return;
+        }
+
+        // Actualizar información
+        document.getElementById('trackNumeroPedido').textContent = data.numeroPedido || '-';
+        document.getElementById('trackEstado').textContent = data.estado || '-';
+        document.getElementById('trackUbicacion').textContent = data.ubicacionActual || '-';
+        document.getElementById('trackProgreso').textContent = data.progreso || 0;
+        document.getElementById('trackTiempo').textContent = data.tiempoEstimadoMin ? `${data.tiempoEstimadoMin} min` : '-- min';
+        document.getElementById('trackDistancia').textContent = data.distanciaRestanteKm ? `${data.distanciaRestanteKm.toFixed(2)} km` : '-- km';
+        
+        if (data.horaEstimadaLlegada) {
+          const hora = new Date(data.horaEstimadaLlegada);
+          document.getElementById('trackHora').textContent = hora.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+        } else {
+          document.getElementById('trackHora').textContent = '--:--';
+        }
+
+        // Actualizar badge de estado
+        const estadoBadge = document.getElementById('trackEstado');
+        estadoBadge.className = 'badge';
+        if (data.estado === 'ENTREGADO') estadoBadge.classList.add('badge-success');
+        else if (data.estado === 'EN_CAMINO') estadoBadge.classList.add('badge-warning');
+        else estadoBadge.classList.add('badge-info');
+
+        // Dibujar mapa
+        dibujarMapa(data);
+
+        // Actualizar historial
+        actualizarHistorial(data.historial || []);
+
+        lucide.createIcons();
+
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    function dibujarMapa(data) {
+      const canvas = document.getElementById('trackingMap');
+      const ctx = canvas.getContext('2d');
+      
+      // Limpiar canvas
+      ctx.fillStyle = '#f9fafb';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Verificar que tengamos coordenadas
+      if (!data.latitudOrigen || !data.latitudDestino) {
+        ctx.fillStyle = '#6b7280';
+        ctx.font = '16px Inter';
+        ctx.textAlign = 'center';
+        ctx.fillText('Esperando datos de tracking...', canvas.width / 2, canvas.height / 2);
+        return;
+      }
+
+      // Calcular escala y transformación
+      const padding = 60;
+      const minLat = Math.min(data.latitudOrigen, data.latitudDestino, data.latitudActual || data.latitudOrigen);
+      const maxLat = Math.max(data.latitudOrigen, data.latitudDestino, data.latitudActual || data.latitudOrigen);
+      const minLon = Math.min(data.longitudOrigen, data.longitudDestino, data.longitudActual || data.longitudOrigen);
+      const maxLon = Math.max(data.longitudOrigen, data.longitudDestino, data.longitudActual || data.longitudOrigen);
+
+      const scaleX = (canvas.width - 2 * padding) / (maxLon - minLon || 0.01);
+      const scaleY = (canvas.height - 2 * padding) / (maxLat - minLat || 0.01);
+
+      function transformX(lon) {
+        return padding + (lon - minLon) * scaleX;
+      }
+
+      function transformY(lat) {
+        return canvas.height - padding - (lat - minLat) * scaleY;
+      }
+
+      // Dibujar línea de ruta
+      ctx.strokeStyle = '#cbd5e1';
+      ctx.lineWidth = 3;
+      ctx.setLineDash([5, 5]);
+      ctx.beginPath();
+      ctx.moveTo(transformX(data.longitudOrigen), transformY(data.latitudOrigen));
+      ctx.lineTo(transformX(data.longitudDestino), transformY(data.latitudDestino));
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Dibujar progreso de ruta
+      if (data.latitudActual && data.longitudActual) {
+        ctx.strokeStyle = '#6366f1';
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.moveTo(transformX(data.longitudOrigen), transformY(data.latitudOrigen));
+        ctx.lineTo(transformX(data.longitudActual), transformY(data.latitudActual));
+        ctx.stroke();
+      }
+
+      // Dibujar punto de origen (bodega)
+      ctx.fillStyle = '#10b981';
+      ctx.beginPath();
+      ctx.arc(transformX(data.longitudOrigen), transformY(data.latitudOrigen), 12, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = '#fff';
+      ctx.lineWidth = 3;
+      ctx.stroke();
+      ctx.fillStyle = '#065f46';
+      ctx.font = 'bold 14px Inter';
+      ctx.textAlign = 'center';
+      ctx.fillText('🏢', transformX(data.longitudOrigen), transformY(data.latitudOrigen) + 5);
+
+      // Dibujar punto de destino
+      ctx.fillStyle = '#ef4444';
+      ctx.beginPath();
+      ctx.arc(transformX(data.longitudDestino), transformY(data.latitudDestino), 12, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = '#fff';
+      ctx.lineWidth = 3;
+      ctx.stroke();
+      ctx.fillStyle = '#991b1b';
+      ctx.font = 'bold 14px Inter';
+      ctx.fillText('🏠', transformX(data.longitudDestino), transformY(data.latitudDestino) + 5);
+
+      // Dibujar posición actual (delivery)
+      if (data.latitudActual && data.longitudActual) {
+        ctx.fillStyle = '#6366f1';
+        ctx.beginPath();
+        ctx.arc(transformX(data.longitudActual), transformY(data.latitudActual), 15, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = '#fff';
+        ctx.lineWidth = 3;
+        ctx.stroke();
+        ctx.fillStyle = '#fff';
+        ctx.font = 'bold 16px Inter';
+        ctx.fillText('🚚', transformX(data.longitudActual), transformY(data.latitudActual) + 5);
+      }
+
+      // Etiquetas
+      ctx.fillStyle = '#1f2937';
+      ctx.font = '12px Inter';
+      ctx.textAlign = 'left';
+      ctx.fillText('Bodega', transformX(data.longitudOrigen) + 20, transformY(data.latitudOrigen));
+      ctx.fillText('Destino', transformX(data.longitudDestino) + 20, transformY(data.latitudDestino));
+    }
+
+    function actualizarHistorial(historial) {
+      const container = document.getElementById('trackHistorial');
+      
+      if (!historial || historial.length === 0) {
+        container.innerHTML = '<p style="color:#6b7280; text-align:center;">No hay historial disponible</p>';
+        return;
+      }
+
+      container.innerHTML = historial.map(h => `
+        <div style="padding:8px; border-bottom:1px solid #e5e7eb;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <strong style="color:#1f2937;">${h.descripcion || 'Actualización'}</strong>
+              <div style="font-size:0.85em; color:#6b7280;">
+                📍 Lat: ${h.latitud?.toFixed(4)}, Lng: ${h.longitud?.toFixed(4)}
+              </div>
+            </div>
+            <div style="font-size:0.85em; color:#6b7280;">
+              ${h.timestamp ? new Date(h.timestamp).toLocaleTimeString('es-ES') : '--:--'}
+            </div>
+          </div>
+        </div>
+      `).reverse().join('');
+    }
+
+    async function simularEntregaCliente() {
+      if (!pedidoTrackingActual) {
+        showAlert('No hay pedido seleccionado', 'error');
+        return;
+      }
+
+      if (!confirm('¿Desea iniciar la simulación de entrega? Esto actualizará el pedido automáticamente.')) {
+        return;
+      }
+
+      try {
+        // Primero verificar si el pedido tiene coordenadas
+        const pedidoRes = await fetch(`${API_URL}/pedidos/${pedidoTrackingActual}`);
+        const pedido = await pedidoRes.json();
+
+        // Si no tiene coordenadas, inicializar tracking primero
+        if (!pedido.latitudOrigen || !pedido.latitudDestino) {
+          // Coordenadas de ejemplo (Quito, Ecuador)
+          const dataInicial = {
+            latitudOrigen: -0.1807,
+            longitudOrigen: -78.4678,
+            latitudDestino: -0.2000 + (Math.random() - 0.5) * 0.02,
+            longitudDestino: -78.5000 + (Math.random() - 0.5) * 0.02,
+            direccionEntrega: 'Dirección de ejemplo en Quito'
+          };
+
+          const initRes = await fetch(`${API_URL}/pedidos/${pedidoTrackingActual}/iniciar-tracking`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(dataInicial)
+          });
+
+          const initData = await initRes.json();
+          if (!initData.success) {
+            showAlert('Error al inicializar tracking', 'error');
+            return;
+          }
+
+          showAlert('Tracking inicializado. Iniciando simulación...', 'success');
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+
+        // Iniciar simulación
+        const res = await fetch(`${API_URL}/pedidos/${pedidoTrackingActual}/simular-entrega`, {
+          method: 'POST'
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+          showAlert('Simulación iniciada. El mapa se actualizará automáticamente.', 'success');
+        } else {
+          showAlert(data.mensaje || 'Error al iniciar simulación', 'error');
+        }
+
+      } catch (e) {
+        console.error(e);
+        showAlert('Error al iniciar simulación', 'error');
+      }
+    }
+
     // ====== ALERTAS ======
     function showAlert(message, type) {
       const alertDiv = document.createElement('div');
@@ -707,10 +1069,12 @@
       const cartModal = document.getElementById('cartModal');
       const pedidosModal = document.getElementById('pedidosModal');
       const detalleModal = document.getElementById('detallePedidoModal');
+      const trackingModal = document.getElementById('trackingModal');
 
       if (event.target === cartModal) toggleCart();
       if (event.target === pedidosModal) togglePedidos(false);
       if (event.target === detalleModal) toggleDetalle(false);
+      if (event.target === trackingModal) cerrarTracking();
     };
 
     // INIT
