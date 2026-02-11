@@ -197,7 +197,59 @@
       </div>
     </div>
   </div>
+  
+  <!--Boton de queja -->
+	
+  <div class="modal" id="modalQueja" style="display:none;">
+      <div class="modal-content" style="max-width:600px;"> <div class="modal-header">
+              <h2>
+                  <i data-lucide="alert-triangle"></i>
+                  Reportar Problema
+              </h2>
+              <button class="close-modal" type="button" onclick="cerrarModalQueja()">
+                  <i data-lucide="x" style="width: 28px; height: 28px;"></i>
+              </button>
+          </div>
+          
+          <div class="modal-body">
+              <input type="hidden" id="quejaPedidoId">
+              
+              <div id="quejaFormContainer" style="display: flex; flex-direction: column; gap: 15px;">
+                  <p style="color:#6b7280; font-size:14px;">Indícanos el motivo de tu reclamo y si deseas proceder con una devolución.</p>
+                  
+                  <div>
+                      <label style="display:block; margin-bottom:5px; font-weight:600;">Motivo del reporte:</label>
+                      <select id="motivoQueja" style="width:100%; padding:10px; border:1px solid #d1d5db; border-radius:8px;">
+                          <option value="Envío incorrecto">Envío incorrecto</option>
+                          <option value="Producto con defectos">Producto con defectos / Dañado</option>
+                          <option value="Inconveniente con el pedido">Inconveniente con el pedido</option>
+                      </select>
+                  </div>
 
+                  <div>
+                      <label style="display:block; margin-bottom:5px; font-weight:600;">Detalles:</label>
+                      <textarea id="detalleQueja" rows="4" style="width:100%; padding:10px; border:1px solid #d1d5db; border-radius:8px; resize:none;" placeholder="Escribe aquí los detalles..."></textarea>
+                  </div>
+
+                  <div style="background:#fff7ed; padding:12px; border-radius:8px; border:1px solid #ffedd5;">
+                      <label style="display:flex; align-items:center; gap:10px; cursor:pointer; font-weight:600; color:#9a3412;">
+                          <input type="checkbox" id="solicitaDevolucion" style="width:18px; height:18px;">
+                          Deseo la devolución del producto
+                      </label>
+                  </div>
+
+                  <div style="display:flex; gap:10px; justify-content:flex-end; margin-top: 10px;">
+                      <button onclick="cerrarModalQueja()" class="checkout-btn" style="padding:10px 20px; background-color: #f3f4f6; color: #374151; border: 1px solid #e5e7eb;">
+                          Cancelar
+                      </button>
+                      <button onclick="ejecutarEnvioQuejaDesdeModal()" class="checkout-btn" style="padding:10px 20px; background-color: #f59e0b; color: white; border:none;">
+                          Enviar Reporte
+                      </button>
+                  </div>
+              </div>
+          </div>
+      </div>
+  </div>
   <script>
     const API_URL = 'http://localhost:8080/api'; // ajusta si tu puerto cambia
 
@@ -680,6 +732,138 @@
         showAlert('Error descargando factura', 'error');
       }
     }
+	// ==========================================
+	// ✅ GESTIÓN DE PEDIDOS Y QUEJAS (VERSIÓN ÚNICA)
+	// ==========================================
+
+	// Asegúrate de que API_URL y currentUser estén definidos arriba de esto
+	// const API_URL = '...';
+	// let currentUser = { id: ... };
+
+	// --- CARGAR LISTADO DE PEDIDOS ---
+	async function cargarMisPedidos() {
+	    try {
+	        const container = document.getElementById('misPedidosContainer');
+	        if (!container) return; 
+	        
+	        container.innerHTML = '<p style="padding:20px;">Cargando pedidos...</p>';
+
+	        const res = await fetch(`${API_URL}/pedidos/mis-pedidos/${currentUser.id}`);
+	        const pedidos = await res.json();
+
+	        if (!pedidos || pedidos.length === 0) {
+	            container.innerHTML = `<p style="padding:20px;color:#6b7280;">No tienes pedidos todavía.</p>`;
+	            return;
+	        }
+
+	        container.innerHTML = pedidos.map(p => `
+	            <div style="border:1px solid #e5e7eb; border-radius:10px; padding:14px; margin-bottom:12px;">
+	                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+	                    <div>
+	                        <strong>${p.numeroPedido}</strong>
+	                        <div style="color:#6b7280;font-size:13px;">${p.fecha ? new Date(p.fecha).toLocaleString('es-ES') : '-'}</div>
+	                    </div>
+	                    <div>
+	                        <span style="padding:6px 10px; border-radius:999px; background:#f3f4f6;">
+	                            Estado: <b>${p.estado}</b>
+	                        </span>
+	                    </div>
+	                </div>
+	                <hr style="margin:12px 0;border:none;border-top:1px solid #eee;"/>
+	                <div style="margin-top:12px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+	                    <div><b>Total:</b> $${Number((p.totalFinal ?? p.total ?? 0)).toFixed(2)}</div>
+	                    
+	                    <div style="display:flex; gap:8px; flex-wrap:wrap;">
+	                        <button class="checkout-btn" style="padding:10px 14px;" onclick="verDetallePedidoCliente('${p.id}')">
+	                            <i data-lucide="eye"></i> Ver detalle
+	                        </button>
+	                        <button class="checkout-btn" style="padding:10px 14px;" onclick="descargarFacturaCliente('${p.id}')">
+	                            <i data-lucide="file-text"></i> Factura
+	                        </button>
+	                        
+	                        ${p.estado === 'ENTREGADO' ? `
+	                            <button class="checkout-btn" style="padding:10px 14px; background-color: #f59e0b; color: white; border: none;" onclick="abrirModalQueja('${p.id}')">
+	                                <i data-lucide="alert-circle"></i> Queja
+	                            </button>
+	                        ` : ''}
+	                    </div>
+	                </div>
+	            </div>
+	        `).join('');
+
+	        if (window.lucide) lucide.createIcons();
+	    } catch (err) {
+	        console.error("Error al cargar pedidos:", err);
+	    }
+	}
+
+	// --- LÓGICA DEL MODAL DE QUEJA ---
+
+	window.abrirModalQueja = function(pedidoId) {
+	    const modal = document.getElementById('modalQueja');
+	    const inputId = document.getElementById('quejaPedidoId');
+	    
+	    if (modal && inputId) {
+	        inputId.value = pedidoId; // Guarda el ID en el input hidden
+	        modal.style.display = 'flex'; // Muestra el modal
+	        
+	        // Limpiar formulario
+	        document.getElementById('detalleQueja').value = '';
+	        document.getElementById('solicitaDevolucion').checked = false;
+	        
+	        if(window.lucide) lucide.createIcons();
+	    }
+	};
+
+	window.cerrarModalQueja = function() {
+	    const modal = document.getElementById('modalQueja');
+	    if (modal) modal.style.display = 'none';
+	};
+
+	window.ejecutarEnvioQuejaDesdeModal = async function() {
+	    const pedidoId = document.getElementById('quejaPedidoId').value;
+	    const motivo = document.getElementById('motivoQueja').value;
+	    const detalle = document.getElementById('detalleQueja').value;
+	    const devolucion = document.getElementById('solicitaDevolucion').checked;
+
+	    if (!detalle.trim()) {
+	        alert("Por favor, describe los detalles del problema.");
+	        return;
+	    }
+
+	    const data = {
+	        quejaMotivo: motivo,
+	        quejaDetalle: detalle,
+	        solicitaDevolucion: devolucion
+	    };
+
+	    try {
+	        const res = await fetch(`${API_URL}/pedidos/${pedidoId}/queja`, {
+	            method: 'PUT',
+	            headers: { 'Content-Type': 'application/json' },
+	            body: JSON.stringify(data)
+	        });
+	        
+	        const result = await res.json();
+	        
+	        if (result.success) {
+	            alert(result.mensaje || "Queja enviada con éxito");
+	            window.cerrarModalQueja();
+	            cargarMisPedidos(); // Recarga la lista para ver cambios
+	        } else {
+	            alert(result.mensaje || "Error al enviar la queja");
+	        }
+	    } catch (err) {
+	        console.error("Error:", err);
+	        alert("Error de conexión con el servidor");
+	    }
+	};
+
+	// Cerrar al hacer clic fuera
+	window.addEventListener('click', (e) => {
+	    const modal = document.getElementById('modalQueja');
+	    if (e.target === modal) window.cerrarModalQueja();
+	});
 
     // ====== ALERTAS ======
     function showAlert(message, type) {
@@ -716,7 +900,10 @@
     // INIT
     checkSession();
     lucide.createIcons();
+	
   </script>
 </body>
+</html>
 
+</body>
 </html>

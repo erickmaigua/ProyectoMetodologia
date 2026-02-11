@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
-         https://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -42,23 +41,16 @@
             <scope>runtime</scope>
             <optional>true</optional>
         </dependency>
-		<!-- Generación de PDFs -->
-		<dependency>
-		    <groupId>com.github.librepdf</groupId>
-		    <artifactId>openpdf</artifactId>
-		    <version>1.3.39</version>
-		</dependency>
-		<dependency>
-  <groupId>org.springframework.boot</groupId>
-  <artifactId>spring-boot-starter-data-mongodb</artifactId>
-</dependency>
 
-		
-
+        <!-- Generación de PDFs -->
+        <dependency>
+            <groupId>com.github.librepdf</groupId>
+            <artifactId>openpdf</artifactId>
+            <version>1.3.39</version>
+        </dependency>
     </dependencies>
 
     <build>
-        <!-- CONFIGURACIÓN DE RECURSOS -->
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
@@ -75,7 +67,6 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
 
-            <!-- Plugin para copiar recursos -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>

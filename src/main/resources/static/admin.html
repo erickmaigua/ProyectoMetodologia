@@ -41,7 +41,12 @@
                 <i data-lucide="shopping-cart"></i>
                 <span>Pedidos</span>
             </div>
-            <div class="menu-item" onclick="showSection('clientes')">
+                        <div class="menu-item" onclick="showSection('quejas')">
+                <i data-lucide="alert-triangle"></i>
+                Quejas y Devoluciones
+            </div>
+
+<div class="menu-item" onclick="showSection('clientes')">
                 <i data-lucide="users"></i>
                 <span>Clientes</span>
             </div>
@@ -256,7 +261,46 @@
         </section>
 
         <!-- PEDIDOS -->
-        <section id="pedidos" class="section">
+        
+        <!-- QUEJAS Y DEVOLUCIONES SECTION -->
+        <section id="quejas" class="section">
+            <div class="section-header">
+                <h1><i data-lucide="alert-triangle"></i> Quejas y Devoluciones</h1>
+                <p>Revisar reportes de clientes y gestionar devoluciones.</p>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3>Reclamos abiertos</h3>
+                    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                        <button class="btn btn-primary" onclick="cargarQuejas()">
+                            <i data-lucide="refresh-cw"></i> Actualizar
+                        </button>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th># Pedido</th>
+                                <th>Cliente</th>
+                                <th>Motivo</th>
+                                <th>Detalle</th>
+                                <th>Devolución</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="quejasTableBody">
+                            <tr><td colspan="7" style="text-align:center;">Cargando...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+<section id="pedidos" class="section">
             <div class="page-header">
                 <h1>
                     <i data-lucide="shopping-cart"></i>
@@ -525,6 +569,9 @@
                     break;
                 case 'usuarios':
                     cargarEmpleados();
+                    break;
+                case 'quejas':
+                    cargarQuejas();
                     break;
             }
 
@@ -1580,7 +1627,93 @@
         // INICIALIZAR
         checkSession();
         lucide.createIcons();
-    </script>
+    
+        // ==========================
+        // Quejas y Devoluciones
+        // ==========================
+        async function cargarQuejas() {
+            try {
+                // 1) Reclamos abiertos (estado = RECLAMO_ABIERTO)
+                const reclamosResp = await fetch(`${API_URL}/pedidos/estado/RECLAMO_ABIERTO`);
+                const reclamos = reclamosResp.ok ? await reclamosResp.json() : [];
+
+                // 2) Devoluciones pendientes (estadoDespacho = PENDIENTE_DEVOLUCION)
+                const devolResp = await fetch(`${API_URL}/pedidos/despacho/PENDIENTE_DEVOLUCION`);
+                const devols = devolResp.ok ? await devolResp.json() : [];
+
+                // Unir sin duplicar
+                const map = new Map();
+                (reclamos || []).forEach(p => map.set(p.id, p));
+                (devols || []).forEach(p => map.set(p.id, p));
+                const lista = Array.from(map.values());
+
+                const tbody = document.getElementById('quejasTableBody');
+                if (!tbody) return;
+
+                if (!lista.length) {
+                    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;">No hay quejas/devoluciones pendientes.</td></tr>`;
+                    return;
+                }
+
+                tbody.innerHTML = lista.map(p => {
+                    const motivo = p.quejaMotivo || '(sin motivo)';
+                    const detalle = (p.quejaDetalle || '').toString().substring(0, 120);
+                    const dev = p.solicitaDevolucion ? 'Sí' : 'No';
+                    const estado = p.quejaEstado || p.estado || 'N/A';
+
+                    return `
+                        <tr>
+                            <td>${p.numeroPedido || p.id}</td>
+                            <td>${p.clienteNombre || p.clienteId || ''}</td>
+                            <td>${motivo}</td>
+                            <td>${detalle}${(p.quejaDetalle && p.quejaDetalle.length > 120) ? '...' : ''}</td>
+                            <td>${dev}</td>
+                            <td>${estado}</td>
+                            <td style="display:flex; gap:8px; flex-wrap:wrap;">
+                                <button class="btn btn-success" onclick="resolverQuejaPrompt('${p.id}', ${p.solicitaDevolucion ? 'true' : 'false'})">
+                                    <i data-lucide="check-circle"></i> Resolver
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+
+                lucide.createIcons();
+            } catch (e) {
+                console.error(e);
+                showAlert('Error al cargar quejas/devoluciones', 'error');
+            }
+        }
+
+        async function resolverQuejaPrompt(pedidoId, solicitaDevolucion) {
+            const respuesta = prompt('Respuesta/nota (opcional) para este reclamo:');
+            let resultado = '';
+            if (solicitaDevolucion) {
+                resultado = prompt('Si hay devolución, escriba el nuevo estado de despacho (ej: DEVOLUCION_EN_PROCESO). Dejar vacío para no cambiar:') || '';
+            }
+
+            try {
+                const resp = await fetch(`${API_URL}/pedidos/${pedidoId}/queja/resolver`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ respuesta: respuesta || '', resultado: resultado || '' })
+                });
+
+                const data = await resp.json().catch(() => ({}));
+                if (resp.ok && (data.success === undefined || data.success === true)) {
+                    showAlert('Queja actualizada correctamente', 'success');
+                    cargarQuejas();
+                } else {
+                    showAlert(data.mensaje || 'No se pudo resolver la queja', 'error');
+                }
+            } catch (e) {
+                console.error(e);
+                showAlert('Error al resolver la queja', 'error');
+            }
+        }
+
+
+</script>
 </body>
 
 </html>

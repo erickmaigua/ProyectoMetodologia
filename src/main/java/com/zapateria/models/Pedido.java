@@ -72,6 +72,38 @@ public class Pedido {
     // Nuevo campo: ID del empleado asignado para gestionar este pedido
     private String empleadoAsignadoId;
     private String empleadoAsignadoNombre;
+    
+    // ===== NUEVOS CAMPOS: QUEJAS Y DEVOLUCIONES =====
+    private String quejaMotivo;      // "Envío incorrecto", "Producto defectuoso", etc.
+    private String quejaDetalle;     // Descripción del cliente
+    private boolean solicitaDevolucion;
+    // Estado interno de la queja (para gestión administrativa)
+    private String quejaEstado;      // "ABIERTA", "RESUELTA"
+    private Date quejaFecha;
+    private String quejaRespuesta;   // Respuesta del admin (opcional)
+    private Date quejaFechaRespuesta;
+
+    
+    // Getters/Setters para Quejas
+    public String getQuejaMotivo() { return quejaMotivo; }
+    public void setQuejaMotivo(String quejaMotivo) { this.quejaMotivo = quejaMotivo; }
+    public String getQuejaDetalle() { return quejaDetalle; }
+    public void setQuejaDetalle(String quejaDetalle) { this.quejaDetalle = quejaDetalle; }
+    public boolean isSolicitaDevolucion() { return solicitaDevolucion; }
+
+    public String getQuejaEstado() { return quejaEstado; }
+    public void setQuejaEstado(String quejaEstado) { this.quejaEstado = quejaEstado; }
+
+    public Date getQuejaFecha() { return quejaFecha; }
+    public void setQuejaFecha(Date quejaFecha) { this.quejaFecha = quejaFecha; }
+
+    public String getQuejaRespuesta() { return quejaRespuesta; }
+    public void setQuejaRespuesta(String quejaRespuesta) { this.quejaRespuesta = quejaRespuesta; }
+
+    public Date getQuejaFechaRespuesta() { return quejaFechaRespuesta; }
+    public void setQuejaFechaRespuesta(Date quejaFechaRespuesta) { this.quejaFechaRespuesta = quejaFechaRespuesta; }
+
+    public void setSolicitaDevolucion(boolean solicitaDevolucion) { this.solicitaDevolucion = solicitaDevolucion; }
 
     public Pedido() {
         this.fecha = new Date();

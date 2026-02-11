@@ -302,4 +302,96 @@ public class PedidoController {
 
         return pedidoRepository.findByClienteId(userId);
     }
+	 // ==========================================
+	    // NUEVO: Registrar Queja o Devolución
+	    // PUT /api/pedidos/{id}/queja
+	    // Body: { "quejaMotivo": "Producto defectuoso", "solicitaDevolucion": "true", "quejaDetalle": "..." }
+	    // ==========================================
+    @PutMapping("/{id}/queja")
+    public Map<String, Object> registrarQueja(
+            @PathVariable String id, 
+            @RequestBody Map<String, String> data) {
+        
+        Map<String, Object> response = new HashMap<>();
+        Pedido pedido = pedidoRepository.findById(id).orElse(null);
+
+        if (pedido == null) {
+            response.put("success", false);
+            response.put("mensaje", "Pedido no encontrado");
+            return response;
+        }
+
+        // Se asume que el modelo Pedido tendrá estos campos o se guardarán en un log
+        // Si el modelo no tiene los campos, se pueden guardar en variables dinámicas si usas MongoDB
+        // o añadir los setters correspondientes en la clase Pedido.java
+        
+        if (data.get("quejaMotivo") != null) {
+            pedido.setEstado("RECLAMO_ABIERTO"); // Cambiamos el estado para que el admin lo vea
+            // Suponiendo que añadimos estos campos al modelo Pedido:
+            pedido.setQuejaMotivo(data.get("quejaMotivo"));
+            pedido.setQuejaDetalle(data.get("quejaDetalle"));
+            
+            boolean quiereDevolucion = Boolean.parseBoolean(data.get("solicitaDevolucion"));
+            pedido.setSolicitaDevolucion(quiereDevolucion);
+            pedido.setQuejaEstado("ABIERTA");
+            pedido.setQuejaFecha(new Date());
+            
+            if (quiereDevolucion) {
+                pedido.setEstadoDespacho("PENDIENTE_DEVOLUCION");
+            }
+        }
+
+        pedidoRepository.save(pedido);
+
+        response.put("success", true);
+        response.put("mensaje", "Su reporte ha sido enviado exitosamente. Revisaremos su caso.");
+        response.put("pedido", pedido);
+        return response;
+    }
+
+
+    // ==========================================
+    // ✅ NUEVO: Resolver/Cerrar una queja (Admin)
+    // PUT /api/pedidos/{id}/queja/resolver
+    // Body: { "respuesta": "texto opcional", "resultado": "RESUELTA" }
+    // ==========================================
+    @PutMapping("/{id}/queja/resolver")
+    public Map<String, Object> resolverQueja(
+            @PathVariable String id,
+            @RequestBody Map<String, String> data) {
+
+        Map<String, Object> response = new HashMap<>();
+        Pedido pedido = pedidoRepository.findById(id).orElse(null);
+
+        if (pedido == null) {
+            response.put("success", false);
+            response.put("mensaje", "Pedido no encontrado");
+            return response;
+        }
+
+        // Marcar como resuelta sin alterar la funcionalidad principal del pedido
+        pedido.setQuejaEstado("RESUELTA");
+        pedido.setQuejaRespuesta(data.get("respuesta"));
+        pedido.setQuejaFechaRespuesta(new Date());
+
+        // Mantener un estado explícito para auditoría
+        pedido.setEstado("RECLAMO_RESUELTO");
+
+        // Si había devolución pendiente, el admin puede dejarlo tal cual o marcarlo como "DEVOLUCION_EN_PROCESO"
+        String resultado = data.get("resultado");
+        if (resultado != null && !resultado.trim().isEmpty()) {
+            // Resultado libre: por ejemplo "DEVOLUCION_EN_PROCESO", "DEVOLUCION_RECHAZADA", etc.
+            if (pedido.isSolicitaDevolucion()) {
+                pedido.setEstadoDespacho(resultado);
+            }
+        }
+
+        pedidoRepository.save(pedido);
+
+        response.put("success", true);
+        response.put("mensaje", "Queja resuelta/actualizada correctamente.");
+        response.put("pedido", pedido);
+        return response;
+    }
+
 }
