@@ -6,10 +6,13 @@ on:
   pull_request:
     branches: [ main, develop ]
 
+# Añadimos permisos para que las acciones puedan comentar en el PR
+permissions:
+  contents: read
+  pull-requests: write
+  checks: write
+
 jobs:
-  # ─────────────────────────────────────────────
-  # Job principal: compilar, testear y cobertura
-  # ─────────────────────────────────────────────
   build-and-test:
     name: 🔨 Build & Test
     runs-on: ubuntu-latest
@@ -52,7 +55,8 @@ jobs:
 
       - name: 💬 Comentar cobertura en PR
         if: github.event_name == 'pull_request'
-        uses: madrapps/jacoco-report@v1.6.0
+        # ACTUALIZADO: Cambiamos de v1.6.0 a v1.7.1
+        uses: madrapps/jacoco-report@v1.7.1
         with:
           paths: ${{ github.workspace }}/target/site/jacoco/jacoco.xml
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -73,9 +77,6 @@ jobs:
           path: target/*.jar
           retention-days: 30
 
-  # ─────────────────────────────────────────────
-  # Resumen de tests visible en el PR
-  # ─────────────────────────────────────────────
   test-summary:
     name: 📋 Resumen de Tests
     runs-on: ubuntu-latest
