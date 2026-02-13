@@ -21,6 +21,7 @@ public interface ProductoRepository extends MongoRepository<Producto, String> {
     // Buscar productos con stock bajo
     List<Producto> findByStockLessThan(int stock);
 <<<<<<< HEAD
+<<<<<<< HEAD
     // PDLS-38
     List<Producto> findByCategoriaEdad(String categoriaEdad);
     long countByCategoriaEdad(String categoriaEdad);
@@ -30,3 +31,6 @@ public interface ProductoRepository extends MongoRepository<Producto, String> {
 =======
 }
 >>>>>>> a09a18c754bf93d4a0edc2246d392dfb48fed16a
+=======
+}
+>>>>>>> 8acb40e3ef805217e97bca6b237f58c67bb14c52

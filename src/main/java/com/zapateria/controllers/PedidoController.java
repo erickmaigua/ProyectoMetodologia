@@ -1,23 +1,32 @@
 package com.zapateria.controllers;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import java.util.ArrayList;
 >>>>>>> a09a18c754bf93d4a0edc2246d392dfb48fed16a
+=======
+>>>>>>> 8acb40e3ef805217e97bca6b237f58c67bb14c52
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 8acb40e3ef805217e97bca6b237f58c67bb14c52
 import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
+<<<<<<< HEAD
 =======
 
 import org.springframework.beans.factory.annotation.Autowired;
 >>>>>>> a09a18c754bf93d4a0edc2246d392dfb48fed16a
+=======
+>>>>>>> 8acb40e3ef805217e97bca6b237f58c67bb14c52
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,6 +39,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.zapateria.models.Pedido;
 <<<<<<< HEAD
+<<<<<<< HEAD
 import com.zapateria.repositories.PedidoRepository;
 import com.zapateria.services.PedidoService;
 =======
@@ -39,12 +49,19 @@ import com.zapateria.repositories.PedidoRepository;
 import com.zapateria.repositories.ProductoRepository;
 import com.zapateria.repositories.UsuarioRepository;
 >>>>>>> a09a18c754bf93d4a0edc2246d392dfb48fed16a
+=======
+import com.zapateria.repositories.PedidoRepository;
+import com.zapateria.services.PedidoService;
+>>>>>>> 8acb40e3ef805217e97bca6b237f58c67bb14c52
 
 @RestController
 @RequestMapping("/api/pedidos")
 @CrossOrigin(origins = "*")
 public class PedidoController {
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 8acb40e3ef805217e97bca6b237f58c67bb14c52
     
     private static final Logger logger = LoggerFactory.getLogger(PedidoController.class);
     
@@ -71,9 +88,16 @@ public class PedidoController {
     }
 
     @GetMapping("/{id}")
+<<<<<<< HEAD
     public ResponseEntity<?> obtenerPedido(@PathVariable String id) {
         if (id == null || id.trim().isEmpty()) {
             Map<String, Object> response = new HashMap<>();
+=======
+    public ResponseEntity<Map<String, Object>> obtenerPedido(@PathVariable String id) {
+        Map<String, Object> response = new HashMap<>();
+        
+        if (id == null || id.trim().isEmpty()) {
+>>>>>>> 8acb40e3ef805217e97bca6b237f58c67bb14c52
             response.put(SUCCESS, false);
             response.put(MENSAJE, "ID inválido");
             return ResponseEntity.badRequest().body(response);
@@ -82,14 +106,23 @@ public class PedidoController {
         Optional<Pedido> pedidoOpt = pedidoRepository.findById(id);
         
         if (!pedidoOpt.isPresent()) {
+<<<<<<< HEAD
             Map<String, Object> response = new HashMap<>();
+=======
+>>>>>>> 8acb40e3ef805217e97bca6b237f58c67bb14c52
             response.put(SUCCESS, false);
             response.put(MENSAJE, PEDIDO_NO_ENCONTRADO);
             return ResponseEntity.notFound().build();
         }
         
+<<<<<<< HEAD
         // Devolver el pedido directamente para que el frontend lo pueda leer fácilmente
         return ResponseEntity.ok(pedidoOpt.get());
+=======
+        response.put(SUCCESS, true);
+        response.put(PEDIDO, pedidoOpt.get());
+        return ResponseEntity.ok(response);
+>>>>>>> 8acb40e3ef805217e97bca6b237f58c67bb14c52
     }
 
     @GetMapping("/cliente/{clienteId}")
@@ -102,6 +135,7 @@ public class PedidoController {
         return ResponseEntity.ok(pedidos);
     }
 
+<<<<<<< HEAD
 
     /**
      * GET /api/pedidos/mis-pedidos/{clienteId}
@@ -116,6 +150,8 @@ public class PedidoController {
         return ResponseEntity.ok(pedidos != null ? pedidos : new java.util.ArrayList<>());
     }
 
+=======
+>>>>>>> 8acb40e3ef805217e97bca6b237f58c67bb14c52
     @GetMapping("/estado/{estado}")
     public ResponseEntity<List<Pedido>> pedidosPorEstado(@PathVariable String estado) {
         if (estado == null || estado.trim().isEmpty()) {
@@ -471,6 +507,7 @@ public class PedidoController {
     
     private String generarCodigoSeguimiento() {
         return "TRK-" + System.currentTimeMillis();
+<<<<<<< HEAD
 =======
 
     @Autowired
@@ -746,5 +783,7 @@ public class PedidoController {
 
         return pedidoRepository.findByClienteId(userId);
 >>>>>>> a09a18c754bf93d4a0edc2246d392dfb48fed16a
+=======
+>>>>>>> 8acb40e3ef805217e97bca6b237f58c67bb14c52
     }
 }

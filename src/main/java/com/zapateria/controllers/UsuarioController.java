@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 <<<<<<< HEAD
+<<<<<<< HEAD
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -15,21 +16,29 @@ import org.springframework.http.ResponseEntity;
 
 import org.springframework.beans.factory.annotation.Autowired;
 >>>>>>> a09a18c754bf93d4a0edc2246d392dfb48fed16a
+=======
+
+import org.springframework.beans.factory.annotation.Autowired;
+>>>>>>> 8acb40e3ef805217e97bca6b237f58c67bb14c52
 import org.springframework.web.bind.annotation.*;
 
 import com.zapateria.models.Usuario;
 import com.zapateria.repositories.UsuarioRepository;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 import static com.zapateria.utils.Constants.*;
 
 =======
 >>>>>>> a09a18c754bf93d4a0edc2246d392dfb48fed16a
+=======
+>>>>>>> 8acb40e3ef805217e97bca6b237f58c67bb14c52
 @RestController
 @RequestMapping("/api/usuarios")
 @CrossOrigin(origins = "*")
 public class UsuarioController {
 
+<<<<<<< HEAD
 <<<<<<< HEAD
     private static final Logger logger = LoggerFactory.getLogger(UsuarioController.class);
 
@@ -242,6 +251,8 @@ public class UsuarioController {
                 List<String> cl = empleado.getClientesAsignados();
                 if (cl != null) { cl.remove(clienteId); empleado.setClientesAsignados(cl); usuarioRepository.save(empleado); }
 =======
+=======
+>>>>>>> 8acb40e3ef805217e97bca6b237f58c67bb14c52
     @Autowired
     private UsuarioRepository usuarioRepository;
 
@@ -461,13 +472,17 @@ public class UsuarioController {
             if (empleado != null) {
                 empleado.getClientesAsignados().remove(clienteId);
                 usuarioRepository.save(empleado);
+<<<<<<< HEAD
 >>>>>>> a09a18c754bf93d4a0edc2246d392dfb48fed16a
+=======
+>>>>>>> 8acb40e3ef805217e97bca6b237f58c67bb14c52
             }
         }
 
         cliente.setEmpleadoAsignadoId(null);
         usuarioRepository.save(cliente);
 
+<<<<<<< HEAD
 <<<<<<< HEAD
         response.put(SUCCESS, true);
         response.put(MENSAJE, "Cliente desasignado correctamente");
@@ -549,6 +564,8 @@ public class UsuarioController {
     }
 }
 =======
+=======
+>>>>>>> 8acb40e3ef805217e97bca6b237f58c67bb14c52
         response.put("success", true);
         response.put("mensaje", "Cliente desasignado correctamente");
 
@@ -615,5 +632,9 @@ public class UsuarioController {
 
         return new ArrayList<>();
     }
+<<<<<<< HEAD
 }
 >>>>>>> a09a18c754bf93d4a0edc2246d392dfb48fed16a
+=======
+}
+>>>>>>> 8acb40e3ef805217e97bca6b237f58c67bb14c52

@@ -1,10 +1,15 @@
 package com.zapateria;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 =======
 >>>>>>> a09a18c754bf93d4a0edc2246d392dfb48fed16a
+=======
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+>>>>>>> 8acb40e3ef805217e97bca6b237f58c67bb14c52
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -12,6 +17,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class ZapateriaApplication {
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 8acb40e3ef805217e97bca6b237f58c67bb14c52
     private static final Logger logger = LoggerFactory.getLogger(ZapateriaApplication.class);
 
     public static void main(String[] args) {
@@ -30,6 +38,7 @@ public class ZapateriaApplication {
         logger.info("  • POST /api/productos              - Crear producto");
         logger.info("  • GET  /api/clientes               - Listar clientes");
         logger.info("  • POST /api/pedidos                - Crear pedido");
+<<<<<<< HEAD
 =======
     public static void main(String[] args) {
         SpringApplication.run(ZapateriaApplication.class, args);
@@ -49,5 +58,7 @@ public class ZapateriaApplication {
         System.out.println("  • POST /api/pedidos                - Crear pedido");
         System.out.println();
 >>>>>>> a09a18c754bf93d4a0edc2246d392dfb48fed16a
+=======
+>>>>>>> 8acb40e3ef805217e97bca6b237f58c67bb14c52
     }
 }

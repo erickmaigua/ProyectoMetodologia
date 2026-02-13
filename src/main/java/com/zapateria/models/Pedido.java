@@ -1,9 +1,13 @@
 package com.zapateria.models;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 import java.util.ArrayList;
 =======
 >>>>>>> a09a18c754bf93d4a0edc2246d392dfb48fed16a
+=======
+import java.util.ArrayList;
+>>>>>>> 8acb40e3ef805217e97bca6b237f58c67bb14c52
 import java.util.Date;
 import java.util.List;
 import org.springframework.data.annotation.Id;
@@ -68,6 +72,7 @@ public class Pedido {
     private String estadoPago;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     // Tipo de entrega: "DOMICILIO" o "RETIRO_TIENDA"
     private String tipoEntrega;      // "DOMICILIO", "RETIRO_TIENDA"
     private String direccionEntrega; // Dirección si es domicilio
@@ -76,6 +81,9 @@ public class Pedido {
 =======
     // Método de pago: "EFECTIVO", "TARJETA_CREDITO", "TARJETA_DEBITO"
 >>>>>>> a09a18c754bf93d4a0edc2246d392dfb48fed16a
+=======
+    // Método de pago: "EFECTIVO", "TARJETA_CREDITO", "TARJETA_DEBITO"
+>>>>>>> 8acb40e3ef805217e97bca6b237f58c67bb14c52
     private String metodoPago;
 
     // Últimos 4 dígitos (solo referencia, no guardes la tarjeta real)
@@ -85,6 +93,9 @@ public class Pedido {
     private String empleadoAsignadoId;
     private String empleadoAsignadoNombre;
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 8acb40e3ef805217e97bca6b237f58c67bb14c52
     
     // ===== NUEVOS CAMPOS: QUEJAS Y DEVOLUCIONES =====
     private String quejaMotivo;      // "Envío incorrecto", "Producto defectuoso", etc.
@@ -125,8 +136,11 @@ public class Pedido {
     }
 
     public void setSolicitaDevolucion(boolean solicitaDevolucion) { this.solicitaDevolucion = solicitaDevolucion; }
+<<<<<<< HEAD
 =======
 >>>>>>> a09a18c754bf93d4a0edc2246d392dfb48fed16a
+=======
+>>>>>>> 8acb40e3ef805217e97bca6b237f58c67bb14c52
 
     public Pedido() {
         this.fecha = new Date();
@@ -136,10 +150,14 @@ public class Pedido {
 
         // ===== NUEVO defaults =====
 <<<<<<< HEAD
+<<<<<<< HEAD
         this.envio = 0.0;     // Por defecto 0, se asignará según tipo de entrega
 =======
         this.envio = 5.00;     // si tu tienda usa $5 fijo
 >>>>>>> a09a18c754bf93d4a0edc2246d392dfb48fed16a
+=======
+        this.envio = 5.00;     // si tu tienda usa $5 fijo
+>>>>>>> 8acb40e3ef805217e97bca6b237f58c67bb14c52
         this.impuestos = 0.0;  // por ahora
     }
 
@@ -157,16 +175,22 @@ public class Pedido {
     public void setClienteNombre(String clienteNombre) { this.clienteNombre = clienteNombre; }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 8acb40e3ef805217e97bca6b237f58c67bb14c52
     public List<ItemPedido> getItems() { 
         return items != null ? new ArrayList<>(items) : null; 
     }
     public void setItems(List<ItemPedido> items) { 
         this.items = items != null ? new ArrayList<>(items) : null; 
     }
+<<<<<<< HEAD
 =======
     public List<ItemPedido> getItems() { return items; }
     public void setItems(List<ItemPedido> items) { this.items = items; }
 >>>>>>> a09a18c754bf93d4a0edc2246d392dfb48fed16a
+=======
+>>>>>>> 8acb40e3ef805217e97bca6b237f58c67bb14c52
 
     public double getTotal() { return total; }
     public void setTotal(double total) { this.total = total; }
@@ -175,16 +199,22 @@ public class Pedido {
     public void setEstado(String estado) { this.estado = estado; }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 8acb40e3ef805217e97bca6b237f58c67bb14c52
     public Date getFecha() { 
         return fecha != null ? new Date(fecha.getTime()) : null; 
     }
     public void setFecha(Date fecha) { 
         this.fecha = fecha != null ? new Date(fecha.getTime()) : null; 
     }
+<<<<<<< HEAD
 =======
     public Date getFecha() { return fecha; }
     public void setFecha(Date fecha) { this.fecha = fecha; }
 >>>>>>> a09a18c754bf93d4a0edc2246d392dfb48fed16a
+=======
+>>>>>>> 8acb40e3ef805217e97bca6b237f58c67bb14c52
 
     public String getEstadoPago() { return estadoPago; }
     public void setEstadoPago(String estadoPago) { this.estadoPago = estadoPago; }
@@ -192,6 +222,7 @@ public class Pedido {
     public String getMetodoPago() { return metodoPago; }
     public void setMetodoPago(String metodoPago) { this.metodoPago = metodoPago; }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
     public String getTipoEntrega() { return tipoEntrega; }
     public void setTipoEntrega(String tipoEntrega) { this.tipoEntrega = tipoEntrega; }
@@ -201,6 +232,8 @@ public class Pedido {
 
 =======
 >>>>>>> a09a18c754bf93d4a0edc2246d392dfb48fed16a
+=======
+>>>>>>> 8acb40e3ef805217e97bca6b237f58c67bb14c52
     public String getTarjetaUltimos4() { return tarjetaUltimos4; }
     public void setTarjetaUltimos4(String tarjetaUltimos4) { this.tarjetaUltimos4 = tarjetaUltimos4; }
 
@@ -228,6 +261,9 @@ public class Pedido {
     public void setEstadoDespacho(String estadoDespacho) { this.estadoDespacho = estadoDespacho; }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 8acb40e3ef805217e97bca6b237f58c67bb14c52
     public Date getFechaDespacho() { 
         return fechaDespacho != null ? new Date(fechaDespacho.getTime()) : null; 
     }
@@ -241,6 +277,7 @@ public class Pedido {
     public void setFechaEntrega(Date fechaEntrega) { 
         this.fechaEntrega = fechaEntrega != null ? new Date(fechaEntrega.getTime()) : null; 
     }
+<<<<<<< HEAD
 =======
     public Date getFechaDespacho() { return fechaDespacho; }
     public void setFechaDespacho(Date fechaDespacho) { this.fechaDespacho = fechaDespacho; }
@@ -248,6 +285,8 @@ public class Pedido {
     public Date getFechaEntrega() { return fechaEntrega; }
     public void setFechaEntrega(Date fechaEntrega) { this.fechaEntrega = fechaEntrega; }
 >>>>>>> a09a18c754bf93d4a0edc2246d392dfb48fed16a
+=======
+>>>>>>> 8acb40e3ef805217e97bca6b237f58c67bb14c52
 
     public String getUbicacionActual() { return ubicacionActual; }
     public void setUbicacionActual(String ubicacionActual) { this.ubicacionActual = ubicacionActual; }
@@ -259,9 +298,12 @@ public class Pedido {
         private int cantidad;
         private double precio;
 <<<<<<< HEAD
+<<<<<<< HEAD
         private String talla; // talla elegida por el cliente
 =======
 >>>>>>> a09a18c754bf93d4a0edc2246d392dfb48fed16a
+=======
+>>>>>>> 8acb40e3ef805217e97bca6b237f58c67bb14c52
 
         public ItemPedido() {}
 
@@ -277,10 +319,13 @@ public class Pedido {
         public double getPrecio() { return precio; }
         public void setPrecio(double precio) { this.precio = precio; }
 <<<<<<< HEAD
+<<<<<<< HEAD
 
         public String getTalla() { return talla; }
         public void setTalla(String talla) { this.talla = talla; }
 =======
 >>>>>>> a09a18c754bf93d4a0edc2246d392dfb48fed16a
+=======
+>>>>>>> 8acb40e3ef805217e97bca6b237f58c67bb14c52
     }
 }

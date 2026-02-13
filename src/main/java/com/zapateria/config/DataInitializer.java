@@ -1,6 +1,9 @@
 package com.zapateria.config;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 8acb40e3ef805217e97bca6b237f58c67bb14c52
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
+<<<<<<< HEAD
 import com.zapateria.models.NodoTransito;
 import com.zapateria.models.Producto;
 import com.zapateria.models.Usuario;
@@ -18,6 +22,11 @@ import com.zapateria.repositories.UsuarioRepository;
 import java.util.HashMap;
 import java.util.Map;
 
+=======
+import com.zapateria.models.Usuario;
+import com.zapateria.repositories.UsuarioRepository;
+
+>>>>>>> 8acb40e3ef805217e97bca6b237f58c67bb14c52
 @Component
 public class DataInitializer implements CommandLineRunner {
     
@@ -26,12 +35,15 @@ public class DataInitializer implements CommandLineRunner {
     @Autowired
     private UsuarioRepository usuarioRepository;
     
+<<<<<<< HEAD
     @Autowired
     private NodoTransitoRepository nodoTransitoRepository;
     
     @Autowired
     private ProductoRepository productoRepository;
     
+=======
+>>>>>>> 8acb40e3ef805217e97bca6b237f58c67bb14c52
     @Value("${app.admin.username}")
     private String adminUsername;
     
@@ -52,7 +64,10 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
+<<<<<<< HEAD
         // Crear admin - solo si no existe
+=======
+>>>>>>> 8acb40e3ef805217e97bca6b237f58c67bb14c52
         Usuario adminExistente = usuarioRepository.findByUsername(adminUsername);
         
         if (adminExistente == null) {
@@ -70,6 +85,7 @@ public class DataInitializer implements CommandLineRunner {
         } else {
             logger.info("Usuario administrador ya existe en la base de datos: {}", adminUsername);
         }
+<<<<<<< HEAD
         
         // Inicializar nodos de tránsito si no existen
         if (nodoTransitoRepository.count() == 0) {
@@ -236,4 +252,7 @@ public class DataInitializer implements CommandLineRunner {
         
     }
 >>>>>>> a09a18c754bf93d4a0edc2246d392dfb48fed16a
+=======
+    }
+>>>>>>> 8acb40e3ef805217e97bca6b237f58c67bb14c52
 }

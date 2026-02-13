@@ -11,10 +11,14 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/facturas")
 <<<<<<< HEAD
+<<<<<<< HEAD
 @CrossOrigin(origins = "*") // ajusta si usas otro puerto para front
 =======
 @CrossOrigin(origins = "http://localhost:8080") // ajusta si usas otro puerto para front
 >>>>>>> a09a18c754bf93d4a0edc2246d392dfb48fed16a
+=======
+@CrossOrigin(origins = "http://localhost:8080") // ajusta si usas otro puerto para front
+>>>>>>> 8acb40e3ef805217e97bca6b237f58c67bb14c52
 public class FacturaController {
 
     private final FacturaPdfService facturaPdfService;

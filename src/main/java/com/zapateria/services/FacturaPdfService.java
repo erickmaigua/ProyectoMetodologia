@@ -4,6 +4,9 @@ import com.zapateria.models.Pedido;
 import com.zapateria.models.Pedido.ItemPedido;
 import com.zapateria.repositories.PedidoRepository;
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 8acb40e3ef805217e97bca6b237f58c67bb14c52
 import com.zapateria.exceptions.PedidoNotFoundException;
 import com.zapateria.exceptions.FacturaGenerationException;
 import com.lowagie.text.*;
@@ -11,16 +14,22 @@ import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+<<<<<<< HEAD
 =======
 import com.lowagie.text.*;
 import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfWriter;
 >>>>>>> a09a18c754bf93d4a0edc2246d392dfb48fed16a
+=======
+>>>>>>> 8acb40e3ef805217e97bca6b237f58c67bb14c52
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
 import java.text.SimpleDateFormat;
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 8acb40e3ef805217e97bca6b237f58c67bb14c52
 import java.util.List;
 import java.util.Locale;
 
@@ -30,11 +39,14 @@ public class FacturaPdfService {
     private static final Logger logger = LoggerFactory.getLogger(FacturaPdfService.class);
     private static final String SUCCESS_MESSAGE = "success";
     private static final String FECHA_PATTERN = "dd/MM/yyyy HH:mm";
+<<<<<<< HEAD
 =======
 
 @Service
 public class FacturaPdfService {
 >>>>>>> a09a18c754bf93d4a0edc2246d392dfb48fed16a
+=======
+>>>>>>> 8acb40e3ef805217e97bca6b237f58c67bb14c52
 
     private final PedidoRepository pedidoRepository;
 
@@ -45,6 +57,9 @@ public class FacturaPdfService {
     public byte[] generarFacturaPedido(String pedidoId) {
         Pedido pedido = pedidoRepository.findById(pedidoId)
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 8acb40e3ef805217e97bca6b237f58c67bb14c52
                 .orElseThrow(() -> new PedidoNotFoundException("Pedido no encontrado con ID: " + pedidoId));
 
         try {
@@ -133,6 +148,7 @@ public class FacturaPdfService {
             clienteInfo.add(Chunk.NEWLINE);
         }
 
+<<<<<<< HEAD
         // Tipo de entrega y dirección
         String tipoEntrega = pedido.getTipoEntrega();
         if (tipoEntrega != null && !tipoEntrega.isEmpty()) {
@@ -147,6 +163,8 @@ public class FacturaPdfService {
             clienteInfo.add(Chunk.NEWLINE);
         }
 
+=======
+>>>>>>> 8acb40e3ef805217e97bca6b237f58c67bb14c52
         agregarDatosSeguimiento(clienteInfo, pedido, negrita, normal, sdf);
         agregarDatosPago(clienteInfo, pedido, negrita, normal);
         
@@ -262,8 +280,12 @@ public class FacturaPdfService {
     private void agregarTotales(Document doc, Pedido pedido, double subtotal, Font negrita, Font normal) throws DocumentException {
         double ivaPorcentaje = (pedido.getIvaPorcentaje() > 0) ? pedido.getIvaPorcentaje() : 0.15;
         double ivaValor = (pedido.getIvaValor() > 0) ? pedido.getIvaValor() : (subtotal * ivaPorcentaje);
+<<<<<<< HEAD
         // Usar el valor de envío del pedido tal cual está guardado (0 para retiro, >0 para domicilio)
         double envio = pedido.getEnvio();
+=======
+        double envio = (pedido.getEnvio() > 0) ? pedido.getEnvio() : 5.00;
+>>>>>>> 8acb40e3ef805217e97bca6b237f58c67bb14c52
         double totalFinal = (pedido.getTotalFinal() > 0)
                 ? pedido.getTotalFinal()
                 : (subtotal + ivaValor + envio);
@@ -286,6 +308,7 @@ public class FacturaPdfService {
         tablaTotales.addCell(new Phrase(String.format("$ %.2f", totalFinal), negrita));
 
         doc.add(tablaTotales);
+<<<<<<< HEAD
 =======
                 .orElseThrow(() -> new RuntimeException("Pedido no encontrado"));
 
@@ -476,5 +499,7 @@ public class FacturaPdfService {
             throw new RuntimeException("Error al generar la factura PDF", e);
         }
 >>>>>>> a09a18c754bf93d4a0edc2246d392dfb48fed16a
+=======
+>>>>>>> 8acb40e3ef805217e97bca6b237f58c67bb14c52
     }
 }
