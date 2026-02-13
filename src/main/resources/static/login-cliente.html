@@ -3,12 +3,26 @@
 
 <head>
     <meta charset="UTF-8">
+<<<<<<< HEAD
+<<<<<<< HEAD
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Cliente - Zapatería</title>
+    <!-- Lucide Icons - CDN sin integrity bloqueante -->
+    <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
+=======
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Cliente - Zapatería</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+>>>>>>> a09a18c754bf93d4a0edc2246d392dfb48fed16a
+=======
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login Cliente - Zapatería</title>
     <!-- Lucide Icons desde CDN con verificación de integridad -->
     <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js" 
             integrity="sha384-LqHYJlqa+j+aE8W7D9SBu5FvFmP2QL5Pl8LjC5vP9f0y1XhJZNUNxZ8vR3LjCcYN" 
             crossorigin="anonymous"></script>
+>>>>>>> 8acb40e3ef805217e97bca6b237f58c67bb14c52
     <link rel="stylesheet" href="/css/style-login-cliente.css">
 </head>
 
@@ -139,6 +153,20 @@
     <script>
         const API_URL = 'http://localhost:8080/api';
 
+<<<<<<< HEAD
+<<<<<<< HEAD
+        
+        // === Helper Lucide — evita "lucide is not defined" ===
+        function safeLucide() {
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        }
+
+=======
+>>>>>>> a09a18c754bf93d4a0edc2246d392dfb48fed16a
+=======
+>>>>>>> 8acb40e3ef805217e97bca6b237f58c67bb14c52
         function switchTab(tab) {
             // Actualizar tabs
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -152,7 +180,15 @@
             document.getElementById('alertContainer').innerHTML = '';
 
             // Reinicializar iconos
+<<<<<<< HEAD
+<<<<<<< HEAD
+            safeLucide();
+=======
             lucide.createIcons();
+>>>>>>> a09a18c754bf93d4a0edc2246d392dfb48fed16a
+=======
+            lucide.createIcons();
+>>>>>>> 8acb40e3ef805217e97bca6b237f58c67bb14c52
         }
 
         function showAlert(message, type) {
@@ -169,7 +205,15 @@
             container.innerHTML = '';
             container.appendChild(alertDiv);
 
+<<<<<<< HEAD
+<<<<<<< HEAD
+            safeLucide();
+=======
             lucide.createIcons();
+>>>>>>> a09a18c754bf93d4a0edc2246d392dfb48fed16a
+=======
+            lucide.createIcons();
+>>>>>>> 8acb40e3ef805217e97bca6b237f58c67bb14c52
 
             setTimeout(() => alertDiv.remove(), 5000);
         }
@@ -244,7 +288,15 @@
         }
 
         // Inicializar iconos
+<<<<<<< HEAD
+<<<<<<< HEAD
+        safeLucide();
+=======
         lucide.createIcons();
+>>>>>>> a09a18c754bf93d4a0edc2246d392dfb48fed16a
+=======
+        lucide.createIcons();
+>>>>>>> 8acb40e3ef805217e97bca6b237f58c67bb14c52
     </script>
 </body>
 
