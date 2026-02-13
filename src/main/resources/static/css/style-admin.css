@@ -535,15 +535,7 @@ input[type="file"]:hover {
      .main-content {
          margin-left: 0;
      }
-<<<<<<< HEAD
-<<<<<<< HEAD
  }
 /* ── Toast override (reemplaza alertas inline) ─────── */
 #alertContainer { display: none !important; }
 .alert-container { display: none !important; }
-=======
- }
->>>>>>> a09a18c754bf93d4a0edc2246d392dfb48fed16a
-=======
- }
->>>>>>> 8acb40e3ef805217e97bca6b237f58c67bb14c52

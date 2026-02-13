@@ -1,9 +1,6 @@
 package com.zapateria.config;
 
-<<<<<<< HEAD
 import com.zapateria.exceptions.MongoConnectionException;
-=======
->>>>>>> 8acb40e3ef805217e97bca6b237f58c67bb14c52
 import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.ServerApi;
@@ -68,11 +65,7 @@ public class MongoConfig extends AbstractMongoClientConfiguration {
             return factory;
         } catch (Exception e) {
             logger.error("Error al conectar con MongoDB Atlas: {}", e.getMessage());
-<<<<<<< HEAD
             throw new MongoConnectionException("No se pudo conectar a MongoDB Atlas. Verifica tu conexión y credenciales.", e);
-=======
-            throw new RuntimeException("No se pudo conectar a MongoDB Atlas. Verifica tu conexión y credenciales.", e);
->>>>>>> 8acb40e3ef805217e97bca6b237f58c67bb14c52
         }
     }
     

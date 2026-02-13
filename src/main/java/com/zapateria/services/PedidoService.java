@@ -20,35 +20,17 @@ import com.zapateria.repositories.PedidoRepository;
 import com.zapateria.repositories.ProductoRepository;
 import com.zapateria.repositories.UsuarioRepository;
 
-<<<<<<< HEAD
 import static com.zapateria.utils.Constants.*;
 
-=======
->>>>>>> 8acb40e3ef805217e97bca6b237f58c67bb14c52
 @Service
 public class PedidoService {
     
     private static final Logger logger = LoggerFactory.getLogger(PedidoService.class);
     
-<<<<<<< HEAD
     // Constantes de ubicación (locales, no están en Constants)
     private static final String UBICACION_BODEGA_PRINCIPAL = UBICACION_BODEGA;
     private static final String UBICACION_EN_RUTA_LOCAL    = UBICACION_EN_RUTA;
     private static final String UBICACION_ENTREGADO_LOCAL  = UBICACION_ENTREGADO;
-=======
-    // Constantes
-    private static final String SUCCESS = "success";
-    private static final String ERROR = "error";
-    private static final String ESTADO_PENDIENTE = "PENDIENTE";
-    private static final String ESTADO_PROCESANDO = "PROCESANDO";
-    private static final String ESTADO_ENVIADO = "ENVIADO";
-    private static final String ESTADO_ENTREGADO = "ENTREGADO";
-    private static final String ESTADO_DESPACHO_EN_RUTA = "EN_RUTA";
-    private static final String ESTADO_DESPACHO_ENTREGADO = "ENTREGADO";
-    private static final String UBICACION_BODEGA_PRINCIPAL = "Bodega Principal";
-    private static final String UBICACION_EN_RUTA = "En ruta";
-    private static final String UBICACION_ENTREGADO = "Entregado al cliente";
->>>>>>> 8acb40e3ef805217e97bca6b237f58c67bb14c52
     
     private final PedidoRepository pedidoRepository;
     private final ProductoRepository productoRepository;
@@ -134,7 +116,6 @@ public class PedidoService {
             
             Producto producto = productoOpt.get();
             
-<<<<<<< HEAD
             // Verificar stock: soporte tallas múltiples
             int stockDisponible = producto.getStockTotal();
             
@@ -150,15 +131,11 @@ public class PedidoService {
             }
             
             if (stockDisponible < item.getCantidad()) {
-=======
-            if (producto.getStock() < item.getCantidad()) {
->>>>>>> 8acb40e3ef805217e97bca6b237f58c67bb14c52
                 response.put(SUCCESS, false);
                 response.put("mensaje", "Stock insuficiente para: " + producto.getNombre());
                 return false;
             }
             
-<<<<<<< HEAD
             // Actualizar stock (soporte tallas)
             if (item.getTalla() != null && !item.getTalla().trim().isEmpty()
                     && producto.getTallas() != null && !producto.getTallas().isEmpty()) {
@@ -170,10 +147,6 @@ public class PedidoService {
             }
             // También actualizar campo legacy
             producto.setStock(Math.max(0, producto.getStock() - item.getCantidad()));
-=======
-            // Actualizar stock
-            producto.setStock(producto.getStock() - item.getCantidad());
->>>>>>> 8acb40e3ef805217e97bca6b237f58c67bb14c52
             productoRepository.save(producto);
         }
         
@@ -207,7 +180,6 @@ public class PedidoService {
         double ivaValor = subtotal * ivaPorcentaje;
         pedido.setIvaValor(ivaValor);
         
-<<<<<<< HEAD
         // Envío: $5 domicilio, $0 retiro en tienda
         double envio;
         if ("RETIRO_TIENDA".equals(pedido.getTipoEntrega())) {
@@ -215,9 +187,6 @@ public class PedidoService {
         } else {
             envio = pedido.getEnvio() > 0 ? pedido.getEnvio() : 5.00;
         }
-=======
-        double envio = pedido.getEnvio() > 0 ? pedido.getEnvio() : 5.00;
->>>>>>> 8acb40e3ef805217e97bca6b237f58c67bb14c52
         pedido.setEnvio(envio);
         
         double totalFinal = subtotal + ivaValor + envio;
@@ -294,34 +263,20 @@ public class PedidoService {
                 pedido.setUbicacionActual(UBICACION_BODEGA_PRINCIPAL);
                 break;
             case ESTADO_ENVIADO:
-<<<<<<< HEAD
                 pedido.setUbicacionActual(UBICACION_EN_RUTA_LOCAL);
                 pedido.setEstadoDespacho(DESPACHO_EN_RUTA);
-=======
-                pedido.setUbicacionActual(UBICACION_EN_RUTA);
-                pedido.setEstadoDespacho(ESTADO_DESPACHO_EN_RUTA);
->>>>>>> 8acb40e3ef805217e97bca6b237f58c67bb14c52
                 if (pedido.getFechaDespacho() == null) {
                     pedido.setFechaDespacho(new Date());
                 }
                 break;
             case ESTADO_ENTREGADO:
-<<<<<<< HEAD
                 pedido.setUbicacionActual(UBICACION_ENTREGADO_LOCAL);
                 pedido.setEstadoDespacho(DESPACHO_ENTREGADO);
-=======
-                pedido.setUbicacionActual(UBICACION_ENTREGADO);
-                pedido.setEstadoDespacho(ESTADO_DESPACHO_ENTREGADO);
->>>>>>> 8acb40e3ef805217e97bca6b237f58c67bb14c52
                 if (pedido.getFechaEntrega() == null) {
                     pedido.setFechaEntrega(new Date());
                 }
                 break;
             default:
-<<<<<<< HEAD
-=======
-                // No cambiar ubicación para otros estados
->>>>>>> 8acb40e3ef805217e97bca6b237f58c67bb14c52
                 break;
         }
     }
