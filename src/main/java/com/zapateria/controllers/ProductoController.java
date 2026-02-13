@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 <<<<<<< HEAD
+<<<<<<< HEAD
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -12,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 =======
+=======
+>>>>>>> 8acb40e3ef805217e97bca6b237f58c67bb14c52
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -23,21 +26,28 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+<<<<<<< HEAD
 >>>>>>> a09a18c754bf93d4a0edc2246d392dfb48fed16a
+=======
+>>>>>>> 8acb40e3ef805217e97bca6b237f58c67bb14c52
 
 import com.zapateria.models.Producto;
 import com.zapateria.repositories.ProductoRepository;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 import static com.zapateria.utils.Constants.*;
 
 =======
 >>>>>>> a09a18c754bf93d4a0edc2246d392dfb48fed16a
+=======
+>>>>>>> 8acb40e3ef805217e97bca6b237f58c67bb14c52
 @RestController
 @RequestMapping("/api/productos")
 @CrossOrigin(origins = "*")
 public class ProductoController {
 
+<<<<<<< HEAD
 <<<<<<< HEAD
     private static final Logger logger = LoggerFactory.getLogger(ProductoController.class);
 
@@ -186,6 +196,8 @@ public class ProductoController {
     }
 }
 =======
+=======
+>>>>>>> 8acb40e3ef805217e97bca6b237f58c67bb14c52
     @Autowired
     private ProductoRepository productoRepository;
 
@@ -223,11 +235,14 @@ public class ProductoController {
     @PostMapping
     public Map<String, Object> crearProducto(@RequestBody Producto producto) {
         Map<String, Object> response = new HashMap<>();
+<<<<<<< HEAD
 
         if (producto.getEstado() == null || producto.getEstado().isEmpty()) {
             producto.setEstado("ACTIVO");
         }
 
+=======
+>>>>>>> 8acb40e3ef805217e97bca6b237f58c67bb14c52
         Producto guardado = productoRepository.save(producto);
         response.put("success", true);
         response.put("mensaje", "Producto creado exitosamente");
@@ -235,7 +250,10 @@ public class ProductoController {
         return response;
     }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 8acb40e3ef805217e97bca6b237f58c67bb14c52
     // Actualizar producto
     @PutMapping("/{id}")
     public Producto actualizarProducto(@PathVariable String id, @RequestBody Producto producto) {
@@ -272,6 +290,7 @@ public class ProductoController {
 
         return response;
     }
+<<<<<<< HEAD
     @PutMapping("/{id}/descontinuar")
     public Map<String, Object> descontinuarProducto(@PathVariable String id) {
         Map<String, Object> response = new HashMap<>();
@@ -313,3 +332,6 @@ public class ProductoController {
 
 }
 >>>>>>> a09a18c754bf93d4a0edc2246d392dfb48fed16a
+=======
+}
+>>>>>>> 8acb40e3ef805217e97bca6b237f58c67bb14c52

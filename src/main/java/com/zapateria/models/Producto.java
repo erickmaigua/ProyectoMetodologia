@@ -3,10 +3,13 @@ package com.zapateria.models;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 <<<<<<< HEAD
+<<<<<<< HEAD
 import java.util.ArrayList;
 import java.util.List;
 =======
 >>>>>>> a09a18c754bf93d4a0edc2246d392dfb48fed16a
+=======
+>>>>>>> 8acb40e3ef805217e97bca6b237f58c67bb14c52
 
 @Document(collection = "productos")
 public class Producto {
@@ -17,6 +20,7 @@ public class Producto {
     private String descripcion;
     private String marca;
     private String categoria;
+<<<<<<< HEAD
 <<<<<<< HEAD
     private String color;
     private double precio;
@@ -91,13 +95,18 @@ public class Producto {
     public int getStock() { return stock; }
     public void setStock(int stock) { this.stock = stock; }
 =======
+=======
+>>>>>>> 8acb40e3ef805217e97bca6b237f58c67bb14c52
     private String talla;
     private String color;
     private double precio;
     private int stock;
     private String imagen;
+<<<<<<< HEAD
     private String estado; // ACTIVO | DESCONTINUADO
 
+=======
+>>>>>>> 8acb40e3ef805217e97bca6b237f58c67bb14c52
 
     // Constructor vacío
     public Producto() {
@@ -119,6 +128,7 @@ public class Producto {
     public void setCodigo(String codigo) {
         this.codigo = codigo;
     }
+<<<<<<< HEAD
     public String getEstado() {
 		return estado;
 	}
@@ -126,6 +136,8 @@ public class Producto {
     public void setEstado(String estado) {
 		this.estado = estado;
 	}
+=======
+>>>>>>> 8acb40e3ef805217e97bca6b237f58c67bb14c52
 
     public String getNombre() {
         return nombre;
@@ -198,5 +210,8 @@ public class Producto {
     public void setImagen(String imagen) {
         this.imagen = imagen;
     }
+<<<<<<< HEAD
 >>>>>>> a09a18c754bf93d4a0edc2246d392dfb48fed16a
+=======
+>>>>>>> 8acb40e3ef805217e97bca6b237f58c67bb14c52
 }
