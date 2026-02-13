@@ -57,11 +57,17 @@ public class Usuario {
     public void setRol(String rol) { this.rol = rol; }
     
     // Nuevos getters y setters
+<<<<<<< HEAD
     public List<String> getClientesAsignados() { 
         return clientesAsignados != null ? new ArrayList<>(clientesAsignados) : null; 
     }
     public void setClientesAsignados(List<String> clientesAsignados) { 
         this.clientesAsignados = clientesAsignados != null ? new ArrayList<>(clientesAsignados) : null; 
+=======
+    public List<String> getClientesAsignados() { return clientesAsignados; }
+    public void setClientesAsignados(List<String> clientesAsignados) { 
+        this.clientesAsignados = clientesAsignados; 
+>>>>>>> a09a18c754bf93d4a0edc2246d392dfb48fed16a
     }
     
     public String getEmpleadoAsignadoId() { return empleadoAsignadoId; }

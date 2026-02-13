@@ -3,11 +3,17 @@
 
 <head>
     <meta charset="UTF-8">
+<<<<<<< HEAD
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login Cliente - Zapatería</title>
     <!-- Lucide Icons - CDN sin integrity bloqueante -->
     <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
+=======
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Cliente - Zapatería</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+>>>>>>> a09a18c754bf93d4a0edc2246d392dfb48fed16a
     <link rel="stylesheet" href="/css/style-login-cliente.css">
 </head>
 
@@ -138,6 +144,7 @@
     <script>
         const API_URL = 'http://localhost:8080/api';
 
+<<<<<<< HEAD
         
         // === Helper Lucide — evita "lucide is not defined" ===
         function safeLucide() {
@@ -146,6 +153,8 @@
             }
         }
 
+=======
+>>>>>>> a09a18c754bf93d4a0edc2246d392dfb48fed16a
         function switchTab(tab) {
             // Actualizar tabs
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -159,7 +168,11 @@
             document.getElementById('alertContainer').innerHTML = '';
 
             // Reinicializar iconos
+<<<<<<< HEAD
             safeLucide();
+=======
+            lucide.createIcons();
+>>>>>>> a09a18c754bf93d4a0edc2246d392dfb48fed16a
         }
 
         function showAlert(message, type) {
@@ -176,7 +189,11 @@
             container.innerHTML = '';
             container.appendChild(alertDiv);
 
+<<<<<<< HEAD
             safeLucide();
+=======
+            lucide.createIcons();
+>>>>>>> a09a18c754bf93d4a0edc2246d392dfb48fed16a
 
             setTimeout(() => alertDiv.remove(), 5000);
         }
@@ -251,7 +268,11 @@
         }
 
         // Inicializar iconos
+<<<<<<< HEAD
         safeLucide();
+=======
+        lucide.createIcons();
+>>>>>>> a09a18c754bf93d4a0edc2246d392dfb48fed16a
     </script>
 </body>
 
