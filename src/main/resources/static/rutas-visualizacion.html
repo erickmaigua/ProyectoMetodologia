@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapa de Rutas de Entrega</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://unpkg.com/vis-network@9.1.9/standalone/umd/vis-network.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 25px 35px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 32px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .card-title {
+            font-size: 22px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #network {
+            width: 100%;
+            height: 600px;
+            border: 2px solid #f0f0f0;
+            border-radius: 10px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 36px;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .nodo-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .nodo-item {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .nodo-item:hover {
+            background: #f0f0f0;
+            transform: translateX(5px);
+        }
+
+        .nodo-nombre {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .nodo-ciudad {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .nodo-retrasos {
+            color: #f57c00;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .legend {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+
+        .legend-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+            font-size: 16px;
+        }
+
+        @media (max-width: 1200px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🗺️ Mapa de Rutas de Entrega</h1>
+            <button class="btn btn-secondary" onclick="window.location.href='admin.html'">← Volver al Panel</button>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number" id="totalNodos">0</div>
+                <div class="stat-label">Centros de Distribución</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="totalRutas">0</div>
+                <div class="stat-label">Rutas Activas</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="tiempoPromedio">0h</div>
+                <div class="stat-label">Tiempo Promedio</div>
+            </div>
+        </div>
+
+        <div class="content-grid">
+            <div class="card">
+                <div class="card-title">🌐 Red de Distribución</div>
+                <div id="network"></div>
+                <div class="legend">
+                    <div class="legend-title">Leyenda</div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #667eea;"></div>
+                        <span>Centro de Distribución</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #f57c00;"></div>
+                        <span>Nodo con Retrasos</span>
+                    </div>
+                    <div class="legend-item">
+                        <div style="width: 20px; height: 3px; background: #999;"></div>
+                        <span>Ruta (tiempo en horas)</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">📍 Centros de Distribución</div>
+                <div id="nodosList" class="nodo-list">
+                    <div class="loading">Cargando nodos...</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-grid">
+            <div class="card">
+                <div class="card-title">📊 Tiempos de Tránsito por Ruta</div>
+                <div class="chart-container">
+                    <canvas id="tiemposChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">⏱️ Distribución de Tiempos</div>
+                <div class="chart-container">
+                    <canvas id="distribucionChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:8080/api';
+        let network = null;
+        let grafoData = null;
+
+        async function cargarGrafo() {
+            try {
+                const response = await fetch(`${API_URL}/transito/grafo`);
+                grafoData = await response.json();
+                
+                renderizarGrafo();
+                mostrarNodos();
+                actualizarEstadisticas();
+                crearGraficos();
+            } catch (error) {
+                console.error('Error al cargar grafo:', error);
+                document.getElementById('network').innerHTML = '<div class="loading">Error al cargar el mapa de rutas</div>';
+            }
+        }
+
+        function renderizarGrafo() {
+            if (!grafoData || !grafoData.nodos) return;
+
+            const nodes = grafoData.nodos.map(nodo => ({
+                id: nodo.id,
+                label: nodo.label,
+                title: `${nodo.label}\n${nodo.ciudad}\nRetrasos: ${nodo.retrasos?.length || 0}`,
+                color: nodo.retrasos && nodo.retrasos.length > 0 ? '#f57c00' : '#667eea',
+                font: { color: 'white', size: 14, face: 'Arial' },
+                shape: 'dot',
+                size: 25
+            }));
+
+            const edges = grafoData.aristas.map(arista => ({
+                from: arista.from,
+                to: arista.to,
+                label: arista.label,
+                arrows: 'to',
+                color: { color: '#999', highlight: '#667eea' },
+                width: 2,
+                smooth: { type: 'continuous' }
+            }));
+
+            const container = document.getElementById('network');
+            const data = { nodes: new vis.DataSet(nodes), edges: new vis.DataSet(edges) };
+            
+            const options = {
+                nodes: {
+                    borderWidth: 2,
+                    borderWidthSelected: 4
+                },
+                edges: {
+                    font: {
+                        size: 12,
+                        color: '#333',
+                        background: 'white'
+                    }
+                },
+                physics: {
+                    enabled: true,
+                    barnesHut: {
+                        gravitationalConstant: -2000,
+                        springConstant: 0.04,
+                        springLength: 200
+                    }
+                },
+                interaction: {
+                    hover: true,
+                    tooltipDelay: 100
+                }
+            };
+
+            network = new vis.Network(container, data, options);
+            
+            // Estabilizar la red
+            network.once('stabilizationIterationsDone', function() {
+                network.setOptions({ physics: false });
+            });
+        }
+
+        function mostrarNodos() {
+            if (!grafoData || !grafoData.nodos) return;
+
+            const container = document.getElementById('nodosList');
+            container.innerHTML = grafoData.nodos.map(nodo => `
+                <div class="nodo-item" onclick="enfocarNodo('${nodo.id}')">
+                    <div class="nodo-nombre">${nodo.label}</div>
+                    <div class="nodo-ciudad">📍 ${nodo.ciudad}</div>
+                    ${nodo.retrasos && nodo.retrasos.length > 0 ? 
+                        `<div class="nodo-retrasos">⚠️ ${nodo.retrasos.length} retraso(s) registrado(s)</div>` : 
+                        ''
+                    }
+                </div>
+            `).join('');
+        }
+
+        function enfocarNodo(nodoId) {
+            if (network) {
+                network.focus(nodoId, {
+                    scale: 1.5,
+                    animation: {
+                        duration: 1000,
+                        easingFunction: 'easeInOutQuad'
+                    }
+                });
+                network.selectNodes([nodoId]);
+            }
+        }
+
+        function actualizarEstadisticas() {
+            if (!grafoData) return;
+
+            const totalNodos = grafoData.nodos.length;
+            const totalRutas = grafoData.aristas.length;
+            
+            // Calcular tiempo promedio
+            let sumaTiempos = 0;
+            grafoData.aristas.forEach(arista => {
+                sumaTiempos += parseFloat(arista.tiempo);
+            });
+            const tiempoPromedio = totalRutas > 0 ? (sumaTiempos / totalRutas).toFixed(1) : 0;
+
+            document.getElementById('totalNodos').textContent = totalNodos;
+            document.getElementById('totalRutas').textContent = totalRutas;
+            document.getElementById('tiempoPromedio').textContent = tiempoPromedio + 'h';
+        }
+
+        function crearGraficos() {
+            if (!grafoData || !grafoData.aristas) return;
+
+            // Gráfico de tiempos por ruta
+            const ctx1 = document.getElementById('tiemposChart').getContext('2d');
+            const rutasLabels = grafoData.aristas.map((a, i) => `Ruta ${i + 1}`);
+            const tiempos = grafoData.aristas.map(a => parseFloat(a.tiempo));
+
+            new Chart(ctx1, {
+                type: 'bar',
+                data: {
+                    labels: rutasLabels,
+                    datasets: [{
+                        label: 'Tiempo de Tránsito (horas)',
+                        data: tiempos,
+                        backgroundColor: 'rgba(102, 126, 234, 0.7)',
+                        borderColor: '#667eea',
+                        borderWidth: 2,
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return value + 'h';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Gráfico de distribución (por rangos de tiempo)
+            const ctx2 = document.getElementById('distribucionChart').getContext('2d');
+            
+            const rangos = {
+                '0-2h': 0,
+                '2-4h': 0,
+                '4-6h': 0,
+                '6-8h': 0,
+                '8+h': 0
+            };
+
+            tiempos.forEach(t => {
+                if (t <= 2) rangos['0-2h']++;
+                else if (t <= 4) rangos['2-4h']++;
+                else if (t <= 6) rangos['4-6h']++;
+                else if (t <= 8) rangos['6-8h']++;
+                else rangos['8+h']++;
+            });
+
+            new Chart(ctx2, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(rangos),
+                    datasets: [{
+                        data: Object.values(rangos),
+                        backgroundColor: [
+                            '#4caf50',
+                            '#8bc34a',
+                            '#ffeb3b',
+                            '#ff9800',
+                            '#f44336'
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+        // Cargar grafo al iniciar
+        cargarGrafo();
+    </script>
+</body>
+</html>
